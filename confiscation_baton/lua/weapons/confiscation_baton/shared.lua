@@ -5,7 +5,10 @@ AddCSLuaFile()
 -- Default Money Printers
 -- Zero's Methlab 2 
 -- Zero's GrowOP
+-- Zero's GrowOP 2
 -- Zero's Yeastbeast
+-- Cocaine Factory
+-- sPrinters
 
 local contraband = {
 	-- Default
@@ -261,19 +264,17 @@ local function getValue(ent, owner)
 	if string.find(ent:GetClass(), "sprinter_rack") then 
 		local money = 0
 		for _, printer in pairs(ent.printers) do
-			if !IsValid(printer) then continue end
-			local stored = printer:GetWithdrawAmount()
-			money = money + stored
-			-- p:OnWithdrawn(ply, true) -- We dont want to do this or it logs as a withdrawn, inb4 "HE WITHDREW FROM THE PRINTERS! CORRUPTION!"
+			if IsValid(printer) then
+				money = money + printer:GetWithdrawAmount()
+				printer:Remove()
+				-- p:OnWithdrawn(ply, true) -- We dont want to do this or it logs as a withdrawn, inb4 "HE WITHDREW FROM THE PRINTERS! CORRUPTION!"
+			end
 		end
 		
-		if money == 0 then return false
-		else 
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(money)) .. " in printed money.") 
-			for _, printer in pairs(ent.printers) do
-				if !IsValid(printer) then continue end
-				printer:SetMoney(0)
-			end
+		if not money then
+			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity")
+		else
+			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(money)) .. " in printed money.")
 		end
 
 		owner:addMoney(money + contraband[ent:GetClass()])
@@ -282,9 +283,12 @@ local function getValue(ent, owner)
 	end	
 
 	if string.find(ent:GetClass(), "sprinter_tier") then 
-		if ent:GetWithdrawAmount() == 0 then return false
+		local money = 0
+		if ent:GetWithdrawAmount() == 0 then
+			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity")
 		else 
 			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(ent:GetWithdrawAmount())) .. " in printed money.")	
+			money = ent:GetWithdrawAmount()
 		end
 		owner:addMoney(ent:GetWithdrawAmount() + contraband[ent:GetClass()])
 
