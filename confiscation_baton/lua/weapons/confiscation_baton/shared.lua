@@ -2,7 +2,7 @@ AddCSLuaFile()
 
 -- Add your list of items here
 -- refer to https://steamcommunity.com/sharedfiles/filedetails/?id=2981130069 for a list of completely supported addons
--- contact https://steamid.xyz/https:/steamcommunity.com/id/Haze_of_dream for issues if it's an emergency
+-- contact https:/steamcommunity.com/id/Haze_of_dream for issues if it's an emergency
 -- otherwise PLEASE use https://steamcommunity.com/workshop/filedetails/discussion/2981130069/3834298194196734223/
 
 -- newly added config for previously hardcoded values
