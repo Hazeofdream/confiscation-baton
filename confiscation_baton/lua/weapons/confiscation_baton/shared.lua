@@ -1,14 +1,19 @@
 AddCSLuaFile()
 
 -- Add your list of items here
--- By default, This supports:
--- Default Money Printers
--- Zero's Methlab 2 
--- Zero's GrowOP
--- Zero's GrowOP 2
--- Zero's Yeastbeast
--- Cocaine Factory
--- sPrinters
+-- refer to https://steamcommunity.com/sharedfiles/filedetails/?id=2981130069 for a list of completely supported addons
+-- contact https://steamid.xyz/https:/steamcommunity.com/id/Haze_of_dream for issues if it's an emergency
+-- otherwise PLEASE use https://steamcommunity.com/workshop/filedetails/discussion/2981130069/3834298194196734223/
+
+-- newly added config for previously hardcoded values
+local confiscation_config = {
+	-- controls how much the actual printer values get multiplied
+	-- we multiply to encourage hitting hard targets, only giving the base amount of the printer would discorage pd raids as it would be more profitable to print yourself.
+	["printer_multiplier"] = 5,
+	
+	-- this looks like alot until you print moonshine's predicted values
+	["moonshine_multiplier"] = 85
+}
 
 local contraband = {
 	-- Default
@@ -100,11 +105,17 @@ local contraband = {
 	["zyb_fuel"] = 100,
 	["zyb_yeast"] = 200,
 	
+	-- Zeros' CrackerMaker (aka Fireworks)
+	["zcm_blackpowder"] = 4000,
+	["zcm_crackermachine"] = 10000,
+	["zcm_paperroll"] = 4000,
+	["zcm_firecracker"] = 3000,
+	
 	-- sPrinters
-	["sprinter_tier_1"] = 6000,
-	["sprinter_tier_2"] = 8000,
-	["sprinter_tier_3"] = 9000,
-	["sprinter_tier_4"] = 15000,
+	["sprinter_tier_1"] = 10000,
+	["sprinter_tier_2"] = 12000,
+	["sprinter_tier_3"] = 14000,
+	["sprinter_tier_4"] = 18000,
 	
 	-- Cocaine Factory
 	["cocaine_baking_soda"] = 100,
@@ -142,7 +153,9 @@ local contraband = {
 	["zgo2_jar"] = 1000,
 	["zgo2_baggy"] = 500,
 	["zgo2_palette"] = 100,
-	["zgo2_clipper"] =  10000 -- motor moment!
+	["zgo2_clipper"] =  10000, -- motor moment!
+
+	["zcm_box"] = 400
 }
 
 if CLIENT then
@@ -178,17 +191,15 @@ function SWEP:Initialize()
     }
 end
 
-local function getEnt(ent)
-    return contraband[ent]
-end
-
 -- The darkrp function Getowning_ent does not work on certain things like zero's weed, so we filter that.
 
 local function checkOwner(ent, owner)
+	-- NOTICE HOW THIS IS ALL ZERO'S SHIT????
 	if string.sub(ent:GetClass(), 1, 4) == "zwf_" then return end
 	if string.sub(ent:GetClass(), 1, 7) == "zmlab2_" then return end
 	if string.sub(ent:GetClass(), 1, 4) == "zyb_" then return end
 	if string.sub(ent:GetClass(), 1, 5) == "zgo2_" then return end
+	if string.sub(ent:GetClass(), 1, 4) == "zcm_" then return end
 	if owner == ent:Getowning_ent() then return true end
 end
 
@@ -265,7 +276,7 @@ local function getValue(ent, owner)
 		local money = 0
 		for _, printer in pairs(ent.printers) do
 			if IsValid(printer) then
-				money = money + printer:GetWithdrawAmount()
+				money = money + printer:GetWithdrawAmount() * confiscation_config["printer_multiplier"] 
 				printer:Remove()
 				-- p:OnWithdrawn(ply, true) -- We dont want to do this or it logs as a withdrawn, inb4 "HE WITHDREW FROM THE PRINTERS! CORRUPTION!"
 			end
@@ -295,26 +306,24 @@ local function getValue(ent, owner)
 		return true
 	end	
 
-	local AdjustedMoonShineValue = 85 -- Multiplier because moonshine values are legit pathetic.
-
 	if string.find(ent:GetClass(), "zyb_jar") and not string.find(ent:GetClass(), "pack") and not string.find(ent:GetClass(), "crate") then -- SCREW YOU ZERO, STOP HAVING SIMILARLY NAMED ITEMS
 		if ent:GetMoonShine() == 0 then return false
 		else 
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(ent:GetMoonShine() * AdjustedMoonShineValue)) .. " in jar value.") 
+			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(ent:GetMoonShine() * confiscation_config["moonshine_multiplier"])) .. " in jar value.") 
 		end
-		owner:addMoney(ent:GetMoonShine() * AdjustedMoonShineValue + contraband[ent:GetClass()])
+		owner:addMoney(ent:GetMoonShine() * confiscation_c["moonshine_multiplier"] + contraband[ent:GetClass()])
 
 		return true
 	end	
 	
 	if string.find(ent:GetClass(), "zyb_jarcrate") then
-		local MegaLongFormula = (zyb.config.Jar.MoonshineAmount * ent:GetJarCount()) * AdjustedMoonShineValue
+		local MegaLongFormula = (zyb.config.Jar.MoonshineAmount * ent:GetJarCount()) * confiscation_config["moonshine_multiplier"]
 
 		if ent:GetJarCount() == 0 then return false
 		else 
 			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(MegaLongFormula)) .. " in contained jar values") 
 		end
-		owner:addMoney(MegaLongFormula + contraband[ent:GetClass()])
+		owner:addMoney(MegaLongFormula + (ent:GetJarCount() + contraband["zyb_jar"]) + contraband[ent:GetClass()])
 
 		return true
 	end	
@@ -554,6 +563,19 @@ local function getValue(ent, owner)
 
 		return true
 	end
+	
+	-- yes, i copied my code from zero's meth jars, cry about it :)
+	if string.find(ent:GetClass(), "zcm_box") then
+		local MegaLongFormula = contraband["zcm_firecracker"] * ent:GetFireworkCount()
+
+		if ent:GetFireworkCount() == 0 then return false
+		else 
+			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(MegaLongFormula)) .. " in contained jar values") 
+		end
+		owner:addMoney(MegaLongFormula + contraband[ent:GetClass()])
+		
+		return true
+	end
 end
 
 function SWEP:PrimaryAttack()
@@ -578,7 +600,7 @@ function SWEP:PrimaryAttack()
     if trace.Entity:IsValid() then
 		local ent = trace.Entity
 		local item = ent:GetClass()
-        local value = getEnt(item)
+        local value = contraband[item]
 		
 		-- If the entity is valid in the contraband list, reward with money.
         if value then
@@ -597,3 +619,23 @@ function SWEP:PrimaryAttack()
 		end
     end
 end
+
+local ConfiscationBatonVersion = 1.0
+
+-- recently added console command, really only for the developer/powerusers
+-- shamelessly ported from my nightstick addon lmao
+concommand.Add("confiscationbaton_info", function()
+	local InfoTable = {
+		"https://steamcommunity.com/sharedfiles/filedetails/?id=2981130069 created by Haze_of_dream",
+		"",
+		"Contact at: ",
+		"STEAM_0:1:75838598",
+		"https:/steamcommunity.com/id/Haze_of_dream",
+		"",
+		string.format("Confiscation Baton Version: %s", ConfiscationBatonVersion)
+	}
+	
+	for _, msg in pairs(InfoTable) do
+		print(msg)
+	end
+end)
