@@ -20,7 +20,7 @@ local contraband = {
     ["money_printer"] = "2000",
     ["gunlab"] = "400",
 	
-	-- Zero's GrowOP
+	-- Zero's Weedfarm aka Zero's GrowOP
 	["zwf_doobytable"] = 8000,
 	["zwf_mixer"] = 8000,
 	["zwf_muffinmix"] = 700,
@@ -90,6 +90,47 @@ local contraband = {
 	["zmlab2_machine_ventilation"] = 2000,
 	["zmlab2_storage"] = 2000,
 	["zmlab2_table"] = 2000,
+	
+	-- These used to be hardcoded in the dynamic check but it made more sense to move here
+	SodiumLamps = {
+			["01"] = 2000,
+			["02"] = 4000,
+			["03"] = 8000
+	},
+
+	LEDLamps = {
+			["01"] = 4000, -- Small
+			["02"] = 8000, -- Medium
+			["03"] = 12000 -- Large
+	},
+
+	Generators = {
+			["01"] = 4000, -- Small
+			[".m"] = 8000 -- Large
+	},
+
+	Pots = {
+			["04"] = 1000, -- Basic
+			["01"] = 3000, -- Auto pot
+			["02"] = 4000, -- Jumbo Pot
+			["03"] = 3000, -- Valhalla
+			["05"] = 2000, -- Steel
+			["06"] = 1000 -- Jute Bag
+	},
+
+	Mixes = {
+			["muffin"] = 1000,
+			["brownie"] = 1000,
+			["patty"] = 1000,
+			["cookie"] = 1000,
+			["cinnamon"] = 1000,
+			["donut"] = 1000
+	},
+
+	Tents = {
+			["01"] = 4000, -- Big
+			["02"] = 8000 -- Small
+	},
 	
 	-- Zero's Yeastbeast aka Moonshine
 	["zyb_distillery"] = 15000, -- High value because the condenser and cooler are not seperate entities but conjoined, this assumes they are attached.
@@ -206,362 +247,341 @@ end
 
 -- For some items like weed and meth, We use the original addons values to get the real value rather than use a flat amount.
 local function getValue(ent, owner)
-	if string.find(ent:GetClass(), "zwf_palette") then
+	-- Start breaking this into if arguments, instead of string checking 5+ times we can check once initially to see if it's even that addon's entity
 
-		if ent:GetMoney() == 0 then return false -- If it has nothing, return false and remand it to config values
-		else
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(ent:GetMoney())) .. " in weed.")
-			owner:addMoney(ent:GetMoney() + contraband[ent:GetClass()])
-		end
-		
-		return true
-	end
+	-- Zero's Weedfarm
+	if string.sub(ent:GetClass(), 1, 4) == "zwf_" then
+		if string.find(ent:GetClass(), "zwf_palette") then
 
-	if string.find(ent:GetClass(), "zwf_weedblock") then
-
-		DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(zwf.config.Plants[ent:GetWeedID()].sellvalue)) .. " in weed.") 
-		owner:addMoney(zwf.config.Plants[ent:GetWeedID()].sellvalue + contraband[ent:GetClass()])
-	
-		return true
-	end
-	
-	if string.find(ent:GetClass(), "zwf_seed") and not string.find(ent:GetClass(), "bank") then -- Seed banks, they have "seed" so lmao on me i guess
-
-		DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(zwf.config.Plants[ent:GetSeedID()].sellvalue)) .. " in weed.")
-		owner:addMoney(zwf.config.Plants[ent:GetSeedID()].sellvalue + contraband[ent:GetClass()])
-	
-		return true
-	end	
-	
-	if string.find(ent:GetClass(), "zmlab2_item_meth") then 
-		if ent:GetMethAmount() == 0 and ent:GetMethQuality() == 0 then return false
-		else
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(ent:GetMethAmount() + ent:GetMethQuality())) .. " in meth.")
-		end
-
-		owner:addMoney(ent:GetMethAmount() + ent:GetMethQuality() + contraband[ent:GetClass()])
-	
-		return true
-	end		
-	
-	if string.find(ent:GetClass(), "zmlab2_item_crate") then
-		if ent:GetMethAmount() == 0 and ent:GetMethQuality() <= 1 then return false-- zero counts an empty crate as 1 in meth quality lmao
-		else 
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(ent:GetMethAmount() + ent:GetMethQuality())) .. " in meth.")
-		end
-
-		owner:addMoney(ent:GetMethAmount() + ent:GetMethQuality() + contraband[ent:GetClass()])
-	
-		return true
-	end		
-	
-	if string.find(ent:GetClass(), "zmlab2_item_palette") then
-		local money = 0
-		for _, v in pairs(ent.MethList) do
-			if v == nil then continue end
-			money = money + zmlab2.Meth.GetValue(v.t,v.a,v.q)
-		end
-	
-		if money == 0 then return false
-		else 
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(money)) .. " in meth.")
-		end
-
-		owner:addMoney(money + contraband[ent:GetClass()])
-	
-		return true
-	end	
-	
-	if string.find(ent:GetClass(), "sprinter_rack") then 
-		local money = 0
-		for _, printer in pairs(ent.printers) do
-			if IsValid(printer) then
-				money = money + printer:GetWithdrawAmount() * confiscation_config["printer_multiplier"] 
-				printer:Remove()
-				-- p:OnWithdrawn(ply, true) -- We dont want to do this or it logs as a withdrawn, inb4 "HE WITHDREW FROM THE PRINTERS! CORRUPTION!"
+			if ent:GetMoney() == 0 then return false -- If it has nothing, return false and remand it to config values
+			else
+				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(ent:GetMoney())) .. " in weed.")
+				owner:addMoney(ent:GetMoney() + contraband[ent:GetClass()])
 			end
+			
+			return true
+		end
+
+		if string.find(ent:GetClass(), "zwf_weedblock") then
+
+			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(zwf.config.Plants[ent:GetWeedID()].sellvalue)) .. " in weed.") 
+			owner:addMoney(zwf.config.Plants[ent:GetWeedID()].sellvalue + contraband[ent:GetClass()])
+		
+			return true
 		end
 		
-		if not money then
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity")
-		else
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(money)) .. " in printed money.")
-		end
+		if string.find(ent:GetClass(), "zwf_seed") and not string.find(ent:GetClass(), "bank") then -- Seed banks, they have "seed" so lmao on me i guess
 
-		owner:addMoney(money + contraband[ent:GetClass()])
+			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(zwf.config.Plants[ent:GetSeedID()].sellvalue)) .. " in weed.")
+			owner:addMoney(zwf.config.Plants[ent:GetSeedID()].sellvalue + contraband[ent:GetClass()])
+		
+			return true
+		end
+	end
 	
-		return true
-	end	
+	-- Zero's Methlab 2
+	if string.sub(ent:GetClass(), 1, 7) == "zmlab2_" then
+		if string.find(ent:GetClass(), "zmlab2_item_meth") then 
+			if ent:GetMethAmount() == 0 and ent:GetMethQuality() == 0 then return false
+			else
+				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(ent:GetMethAmount() + ent:GetMethQuality())) .. " in meth.")
+			end
 
-	if string.find(ent:GetClass(), "sprinter_tier") then 
-		local money = 0
-		if ent:GetWithdrawAmount() == 0 then
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity")
-		else 
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(ent:GetWithdrawAmount())) .. " in printed money.")	
-			money = ent:GetWithdrawAmount()
+			owner:addMoney(ent:GetMethAmount() + ent:GetMethQuality() + contraband[ent:GetClass()])
+		
+			return true
+		end		
+		
+		if string.find(ent:GetClass(), "zmlab2_item_crate") then
+			if ent:GetMethAmount() == 0 and ent:GetMethQuality() <= 1 then return false-- zero counts an empty crate as 1 in meth quality lmao
+			else 
+				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(ent:GetMethAmount() + ent:GetMethQuality())) .. " in meth.")
+			end
+
+			owner:addMoney(ent:GetMethAmount() + ent:GetMethQuality() + contraband[ent:GetClass()])
+		
+			return true
+		end		
+		
+		if string.find(ent:GetClass(), "zmlab2_item_palette") then
+			local money = 0
+			for _, v in pairs(ent.MethList) do
+				if v == nil then continue end
+				money = money + zmlab2.Meth.GetValue(v.t,v.a,v.q)
+			end
+		
+			if money == 0 then return false
+			else 
+				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(money)) .. " in meth.")
+			end
+
+			owner:addMoney(money + contraband[ent:GetClass()])
+		
+			return true
 		end
-		owner:addMoney(ent:GetWithdrawAmount() + contraband[ent:GetClass()])
-
-		return true
-	end	
-
-	if string.find(ent:GetClass(), "zyb_jar") and not string.find(ent:GetClass(), "pack") and not string.find(ent:GetClass(), "crate") then -- SCREW YOU ZERO, STOP HAVING SIMILARLY NAMED ITEMS
-		if ent:GetMoonShine() == 0 then return false
-		else 
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(ent:GetMoonShine() * confiscation_config["moonshine_multiplier"])) .. " in jar value.") 
-		end
-		owner:addMoney(ent:GetMoonShine() * confiscation_c["moonshine_multiplier"] + contraband[ent:GetClass()])
-
-		return true
-	end	
+	end
 	
-	if string.find(ent:GetClass(), "zyb_jarcrate") then
-		local MegaLongFormula = (zyb.config.Jar.MoonshineAmount * ent:GetJarCount()) * confiscation_config["moonshine_multiplier"]
+	-- sPrinters
+	if string.sub(ent:GetClass(), 1, 9) == "sprinter_" then
+		if string.find(ent:GetClass(), "sprinter_rack") then 
+			local money = 0
+			local printervalue = 0
+			for _, printer in pairs(ent.printers) do
+				if IsValid(printer) then
+					money = money + printer:GetWithdrawAmount() * confiscation_config["printer_multiplier"]
+					printervalue = printervalue + contraband[printer:GetClass()]
+					printer:Remove()
+					-- p:OnWithdrawn(ply, true) -- We dont want to do this or it logs as a withdrawn, inb4 "HE WITHDREW FROM THE PRINTERS! CORRUPTION!"
+				end
+			end
+			
+			if money == 0 then
+				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity")
+			else
+				DarkRP.notify(owner, 1, 4, string.format("You received %s for this entity, %s in printer value and %s in printed money.", DarkRP.formatMoney(contraband[ent:GetClass()]), DarkRP.formatMoney(printervalue), DarkRP.formatMoney(money)))
+			end
 
-		if ent:GetJarCount() == 0 then return false
-		else 
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(MegaLongFormula)) .. " in contained jar values") 
+			owner:addMoney(money + contraband[ent:GetClass()])
+		
+			return true
+		end	
+
+		if string.find(ent:GetClass(), "sprinter_tier") then 
+			local money = 0
+			if ent:GetWithdrawAmount() == 0 then
+				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity")
+			else 
+				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(ent:GetWithdrawAmount())) .. " in printed money.")	
+				money = ent:GetWithdrawAmount()
+			end
+			owner:addMoney(ent:GetWithdrawAmount() + contraband[ent:GetClass()])
+
+			return true
 		end
-		owner:addMoney(MegaLongFormula + (ent:GetJarCount() + contraband["zyb_jar"]) + contraband[ent:GetClass()])
+	end
 
-		return true
-	end	
+	-- Zero's Yeastbeast
+	if string.sub(ent:GetClass(), 1, 4) == "zyb_" then
+		if string.find(ent:GetClass(), "zyb_jar") and not string.find(ent:GetClass(), "pack") and not string.find(ent:GetClass(), "crate") then -- SCREW YOU ZERO, STOP HAVING SIMILARLY NAMED ITEMS
+			if ent:GetMoonShine() == 0 then return false
+			else 
+				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(ent:GetMoonShine() * confiscation_config["moonshine_multiplier"])) .. " in jar value.") 
+			end
+			owner:addMoney(ent:GetMoonShine() * confiscation_c["moonshine_multiplier"] + contraband[ent:GetClass()])
+
+			return true
+		end	
+		
+		if string.find(ent:GetClass(), "zyb_jarcrate") then
+			local MegaLongFormula = (zyb.config.Jar.MoonshineAmount * ent:GetJarCount()) * confiscation_config["moonshine_multiplier"]
+
+			if ent:GetJarCount() == 0 then return false
+			else 
+				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(MegaLongFormula)) .. " in contained jar values") 
+			end
+			owner:addMoney(MegaLongFormula + (ent:GetJarCount() + contraband["zyb_jar"]) + contraband[ent:GetClass()])
+
+			return true
+		end
+	end
 	
 	-- Zero's GrowOP 2 uses models to differentiate instead of classes -_-
 	
-	if string.find(ent:GetClass(), "zgo2_weedbranch") then
-		DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(zgo2.Plant.GetWeedAmount(ent:GetPlantID()))) .. " for this entity and " .. tostring(DarkRP.formatMoney(zgo2.Plant.GetTotalMoney(ent:GetPlantID()))) .. " in weed") 
+	if string.sub(ent:GetClass(), 1, 5) == "zgo2_" then
+		if string.find(ent:GetClass(), "zgo2_weedbranch") then
+			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(zgo2.Plant.GetWeedAmount(ent:GetPlantID()))) .. " for this entity and " .. tostring(DarkRP.formatMoney(zgo2.Plant.GetTotalMoney(ent:GetPlantID()))) .. " in weed") 
 
-		owner:addMoney(zgo2.Plant.GetTotalMoney(ent:GetPlantID()))
+			owner:addMoney(zgo2.Plant.GetTotalMoney(ent:GetPlantID()))
 
-		return true
-	end		
-	
-	if string.find(ent:GetClass(), "zgo2_clipper") then
-		if ent:GetHasMotor() then 
-			local value = contraband[ent:GetClass()] + contraband["zgo2_motor"]
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this equipment and " .. tostring(DarkRP.formatMoney(contraband["zgo2_motor"])) .. " in parts") 
-		else
-			value = contraband[ent:GetClass()]
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(value)) .. " for equipment") 
-		end
-
-		owner:addMoney(value)
-
-		return true
-	end	
-	
-	if string.find(ent:GetClass(), "zgo2_jar")  and not string.find(ent:GetClass(), "crate") then
-		local WeedValue = ent:GetWeedAmount() * ent:GetWeedTHC() -- im using this cause growop 2 is retarded and doesn't have a direct function for checking money (except for when exporting the data, no im not sifting that shit)
-		DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(WeedValue)) .. " in weed") 
-		owner:addMoney(WeedValue + contraband[ent:GetClass()])
-
-		return true
-	end		
-	
-	if string.find(ent:GetClass(), "zgo2_weedblock")  then	
-		DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity") 
-		owner:addMoney(contraband[ent:GetClass()])
-
-		return true
-	end		
-	
-	if string.find(ent:GetClass(), "zgo2_palette") then
-		money = contraband["zgo2_weedblock"] * #ent.WeedList
+			return true
+		end		
 		
-		if #ent.WeedList > 0 then
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(contraband["zgo2_weedblock"] * #ent.WeedList)).. " in weed blocks") 
-		else
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity")
-		end
-
-		owner:addMoney(contraband[ent:GetClass()] + money)
-		return true
-	end	
-	
-	if string.find(ent:GetClass(), "zgo2_jarcrate") then -- this took from 12:36 to 2:06 btw
-		local money = 0
-		for _, jar in pairs(ent.WeedList) do
-			if IsValid(jar) then
-				money = money + (jar:GetWeedAmount() * jar:GetWeedTHC())
+		if string.find(ent:GetClass(), "zgo2_clipper") then
+			if ent:GetHasMotor() then 
+				local value = contraband[ent:GetClass()] + contraband["zgo2_motor"]
+				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this equipment and " .. tostring(DarkRP.formatMoney(contraband["zgo2_motor"])) .. " in parts") 
+			else
+				value = contraband[ent:GetClass()]
+				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(value)) .. " for equipment") 
 			end
-		end
+
+			owner:addMoney(value)
+
+			return true
+		end	
 		
-		if money then
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(money)).. " in weed jars") 
-		else
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity")
-		end
+		if string.find(ent:GetClass(), "zgo2_jar")  and not string.find(ent:GetClass(), "crate") then
+			local WeedValue = ent:GetWeedAmount() * ent:GetWeedTHC() -- im using this cause growop 2 is retarded and doesn't have a direct function for checking money (except for when exporting the data, no im not sifting that shit)
+			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(WeedValue)) .. " in weed") 
+			owner:addMoney(WeedValue + contraband[ent:GetClass()])
 
-		owner:addMoney(contraband[ent:GetClass()] + money)
-		return true
-	end
-	
-	if string.find(ent:GetClass(), "zgo2_baggy") then
-		local WeedValue = ent:GetWeedAmount() * ent:GetWeedTHC()
-		DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(WeedValue)) .. " in weed") 
-	
-		owner:addMoney(WeedValue + contraband[ent:GetClass()])
-
-		return true
-	end
-	
-	if string.find(ent:GetClass(), "zgo2_lamp") and string.find(ent:GetModel(), "sodium")  and not string.find(ent:GetModel(), "tent") then
-		local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
-		local getType = string.sub(pathtrim, 17, 18)
-
-		local SodiumLamps = {
-				["01"] = 2000,
-				["02"] = 4000,
-				["03"] = 8000
-		}
-
-		DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(SodiumLamps[getType])) .. " for operation equipment") 
-
-		owner:addMoney(SodiumLamps[getType])
-
-		return true
-	end	
-	
-	if string.find(ent:GetClass(), "zgo2_lamp") and string.find(ent:GetModel(), "led") and not string.find(ent:GetModel(), "tent") then
-		local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
-		local getType = string.sub(pathtrim, 15, 16)
-
-		local LEDLamps = {
-				["01"] = 4000, -- Small
-				["02"] = 8000, -- Medium
-				["03"] = 12000 -- Large
-		}
-
-		DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(LEDLamps[getType])) .. " for operation equipment") 
-
-		owner:addMoney(LEDLamps[getType()])
-
-		return true
-	end	
-	
-	if string.find(ent:GetClass(), "zgo2_lamp") and string.find(ent:GetModel(), "led") and string.find(ent:GetModel(), "tent") then
-		DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(4000)) .. " for operation equipment") 
-
-		owner:addMoney(4000)
-
-		return true
-	end	
-	
-	if string.find(ent:GetClass(), "zgo2_lamp") and string.find(ent:GetModel(), "sodium") and string.find(ent:GetModel(), "tent") then
-		DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(2000)) .. " for operation equipment") 
-
-		owner:addMoney(2000)
-
-		return true
-	end
-	
-	if string.find(ent:GetClass(), "zgo2_generator") then
-		local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
-		local getType = string.sub(pathtrim, 15, 16)
+			return true
+		end		
 		
-		local Generators = {
-				["01"] = 4000, -- Small
-				[".m"] = 8000 -- Large
-		}
+		if string.find(ent:GetClass(), "zgo2_weedblock")  then	
+			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity") 
+			owner:addMoney(contraband[ent:GetClass()])
+
+			return true
+		end		
 		
-		DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(Generators[getType])) .. " for operation equipment") 
+		if string.find(ent:GetClass(), "zgo2_palette") then
+			money = contraband["zgo2_weedblock"] * #ent.WeedList
+			
+			if #ent.WeedList > 0 then
+				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(contraband["zgo2_weedblock"] * #ent.WeedList)).. " in weed blocks") 
+			else
+				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity")
+			end
 
-		owner:addMoney(Generators[getType])
-
-		return true
-	end	
-	
-	
-	if string.find(ent:GetClass(), "zgo2_pot") then
-		local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
-		local getType = string.sub(pathtrim, 9, 10)
+			owner:addMoney(contraband[ent:GetClass()] + money)
+			return true
+		end	
 		
-		local Pots = {
-				["04"] = 1000, -- Basic
-				["01"] = 3000, -- Auto pot
-				["02"] = 4000, -- Jumbo Pot
-				["03"] = 3000, -- Valhalla
-				["05"] = 2000, -- Steel
-				["06"] = 1000 -- Jute Bag
-		}
-		
-		DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(Pots[getType])) .. " for growing equipment") 
-
-		owner:addMoney(Pots[getType])
-
-		return true
-	end		
-	
-	if string.find(ent:GetClass(), "zgo2_backmix") then
-		local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
-		local mdltrim = string.Split(pathtrim, ".mdl")[1]
-		local getType = string.sub(mdltrim, 14, 25)
-		
-		local Mixes = {
-				["muffin"] = 1000,
-				["brownie"] = 1000,
-				["patty"] = 1000,
-				["cookie"] = 1000,
-				["cinnamon"] = 1000,
-				["donut"] = 1000
-		}
-		
-		DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(Mixes[getType])) .. " for ingrediants") 
-
-		owner:addMoney(Mixes[getType])
-
-		return true
-	end	
-	
-	if string.find(ent:GetClass(), "zgo2_rack") then
-		local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
-		local getType = string.sub(pathtrim, 10, 11)
-		
-		local Pots = {
-				[".m"] = 4000, -- Regular
-				["01"] = 2000 -- Small
-		}
-		
-		DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(Pots[getType])) .. " for holding equipment") 
-
-		owner:addMoney(Pots[getType])
-
-		return true
-	end	
-	
-	if string.find(ent:GetClass(), "zgo2_tent") then
-		local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
-		local getType = string.sub(pathtrim, 10, 11)
-
-		local Tents = {
-				["01"] = 4000, -- Big
-				["02"] = 8000 -- Small
-		}
-
-		local stored = 0
-
-		for _, child in pairs(ent:GetChildren()) do
-			if child:GetClass() == "zgo2_lamp" then 
-				if string.find(child:GetModel(), "sodium") then
-					stored = stored + 2000
-				end				
-				if string.find(child:GetModel(), "led") then
-					stored = stored + 4000
+		if string.find(ent:GetClass(), "zgo2_jarcrate") then -- this took from 12:36 to 2:06 btw
+			local money = 0
+			for _, jar in pairs(ent.WeedList) do
+				if IsValid(jar) then
+					money = money + (jar:GetWeedAmount() * jar:GetWeedTHC())
 				end
 			end
+			
+			if money == 0 then
+				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(money)).. " in weed jars") 
+			else
+				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity")
+			end
+
+			owner:addMoney(contraband[ent:GetClass()] + money)
+			return true
 		end
 		
-		if not stored then
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(Tents[getType] + stored)) .. " for the operating tent") 
-			owner:addMoney(Tents[getType])
-		else
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(Tents[getType] + stored)) .. " for the operating tent and attached equipment") 
-			owner:addMoney(Tents[getType] + stored)
-		end
+		if string.find(ent:GetClass(), "zgo2_baggy") then
+			local WeedValue = ent:GetWeedAmount() * ent:GetWeedTHC()
+			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(WeedValue)) .. " in weed") 
+		
+			owner:addMoney(WeedValue + contraband[ent:GetClass()])
 
-		return true
+			return true
+		end
+		
+		if string.find(ent:GetClass(), "zgo2_lamp") and string.find(ent:GetModel(), "sodium")  and not string.find(ent:GetModel(), "tent") then
+			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
+			local getType = string.sub(pathtrim, 17, 18)
+
+			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["SodiumLamps"][getType])) .. " for operation equipment") 
+
+			owner:addMoney(contraband["SodiumLamps"][getType])
+
+			return true
+		end	
+		
+		if string.find(ent:GetClass(), "zgo2_lamp") and string.find(ent:GetModel(), "led") and not string.find(ent:GetModel(), "tent") then
+			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
+			local getType = string.sub(pathtrim, 15, 16)
+
+			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["LEDLamps"][getType])) .. " for operation equipment") 
+
+			owner:addMoney(contraband["LEDLamps"][getType()])
+
+			return true
+		end	
+		
+		if string.find(ent:GetClass(), "zgo2_lamp") and string.find(ent:GetModel(), "led") and string.find(ent:GetModel(), "tent") then
+			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(4000)) .. " for operation equipment") 
+
+			owner:addMoney(4000)
+
+			return true
+		end	
+		
+		if string.find(ent:GetClass(), "zgo2_lamp") and string.find(ent:GetModel(), "sodium") and string.find(ent:GetModel(), "tent") then
+			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(2000)) .. " for operation equipment") 
+
+			owner:addMoney(2000)
+
+			return true
+		end
+		
+		if string.find(ent:GetClass(), "zgo2_generator") then
+			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
+			local getType = string.sub(pathtrim, 15, 16)
+			
+			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["Generators"][getType])) .. " for operation equipment") 
+
+			owner:addMoney(contraband["Generators"][getType])
+
+			return true
+		end	
+		
+		
+		if string.find(ent:GetClass(), "zgo2_pot") then
+			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
+			local getType = string.sub(pathtrim, 9, 10)
+			
+			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["Pots"][getType])) .. " for growing equipment") 
+
+			owner:addMoney(contraband["Pots"][getType])
+
+			return true
+		end		
+		
+		if string.find(ent:GetClass(), "zgo2_backmix") then
+			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
+			local mdltrim = string.Split(pathtrim, ".mdl")[1]
+			local getType = string.sub(mdltrim, 14, 25)
+			
+			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["Mixes"][getType])) .. " for ingrediants") 
+
+			owner:addMoney(contraband["Mixes"][getType])
+
+			return true
+		end	
+		
+		if string.find(ent:GetClass(), "zgo2_rack") then
+			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
+			local getType = string.sub(pathtrim, 10, 11)
+			
+			local Pots = {
+					[".m"] = 4000, -- Regular
+					["01"] = 2000 -- Small
+			}
+			
+			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["Pots"][getType])) .. " for holding equipment") 
+
+			owner:addMoney(contraband["Pots"][getType])
+
+			return true
+		end	
+		
+		if string.find(ent:GetClass(), "zgo2_tent") then
+			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
+			local getType = string.sub(pathtrim, 10, 11)
+
+			local stored = 0
+
+			-- automatically profits attached equipment
+			for _, child in pairs(ent:GetChildren()) do
+				if child:GetClass() == "zgo2_lamp" then 
+					if string.find(child:GetModel(), "sodium") then
+						stored = stored + 2000
+					end				
+					if string.find(child:GetModel(), "led") then
+						stored = stored + 4000
+					end
+				end
+			end
+			
+			if stored == 0 then
+				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["Tents"][getType] + stored)) .. " for the operating tent") 
+				owner:addMoney(contraband["Tents"][getType])
+			else
+				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["Tents"][getType] + stored)) .. " for the operating tent and attached equipment") 
+				owner:addMoney(contraband["Tents"][getType] + stored)
+			end
+
+			return true
+		end
 	end
 	
 	-- yes, i copied my code from zero's meth jars, cry about it :)
