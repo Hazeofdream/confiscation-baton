@@ -133,7 +133,6 @@ local contraband = {
 	},
 	
 	-- Zero's Yeastbeast aka Moonshine
-	["zyb_distillery"] = 15000, -- High value because the condenser and cooler are not seperate entities but conjoined, this assumes they are attached.
 	["zyb_constructionkit_condenser"] = 5000,
 	["zyb_constructionkit_cooler"] = 5000,
 	["zyb_fermbarrel"] = 1000,
@@ -145,6 +144,8 @@ local contraband = {
 	["zyb_water"] = 200,
 	["zyb_fuel"] = 100,
 	["zyb_yeast"] = 200,
+	["zyb_distillery_cooler"] = 9000,
+	["zyb_distillery_condenser"] = 9000,
 	
 	-- Zeros' CrackerMaker (aka Fireworks)
 	["zcm_blackpowder"] = 4000,
@@ -180,6 +181,9 @@ local contraband = {
 	["zwf_palette"] = 5000,
 	["zwf_weedblock"] = 2000,
 	["zwf_seed"] = 2000,
+	
+	-- can have additional attachments like the cooler
+	["zyb_distillery"] = 10000,
 
 	["sprinter_rack"] = 50000,
 
@@ -382,6 +386,29 @@ local function getValue(ent, owner)
 			owner:addMoney(MegaLongFormula + (ent:GetJarCount() + contraband["zyb_jar"]) + contraband[ent:GetClass()])
 
 			return true
+		end		
+		
+		if string.find(ent:GetClass(), "zyb_distillery") then
+			local totalvalue = 0
+			if IsValid(ent:GetCooler()) then
+				totalvalue = totalvalue + contraband["zyb_distillery_cooler"]
+				ent:GetCooler():Remove()
+			end			
+			
+			if IsValid(ent:GetCondenser()) then
+				totalvalue = totalvalue + contraband["zyb_distillery_condenser"]
+				ent:GetCondenser():Remove()
+			end
+
+			if totalvalue then
+				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(totalvalue)) .. " from attached equipment")	
+			else
+				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity")
+			end
+			
+			owner:addMoney(contraband[ent:GetClass()] + totalvalue)
+
+			return true
 		end
 	end
 	
@@ -564,10 +591,10 @@ local function getValue(ent, owner)
 			for _, child in pairs(ent:GetChildren()) do
 				if child:GetClass() == "zgo2_lamp" then 
 					if string.find(child:GetModel(), "sodium") then
-						stored = stored + 2000
+						stored = stored + contraband["SodiumLamps"]["01"]
 					end				
 					if string.find(child:GetModel(), "led") then
-						stored = stored + 4000
+						stored = stored + contraband["LEDLamps"]["01"]
 					end
 				end
 			end
