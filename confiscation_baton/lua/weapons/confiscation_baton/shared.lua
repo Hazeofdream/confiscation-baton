@@ -17,8 +17,8 @@ local confiscation_config = {
 
 local contraband = {
 	-- Default
-    ["money_printer"] = "2000",
-    ["gunlab"] = "400",
+	["money_printer"] = 2000,
+	["gunlab"] = 400,
 	
 	-- Zero's Weedfarm aka Zero's GrowOP
 	["zwf_doobytable"] = 8000,
@@ -345,7 +345,7 @@ local function getValue(ent, owner)
 				DarkRP.notify(owner, 1, 4, string.format("You received %s for this entity, %s in printer value and %s in printed money.", DarkRP.formatMoney(contraband[ent:GetClass()]), DarkRP.formatMoney(printervalue), DarkRP.formatMoney(money)))
 			end
 
-			owner:addMoney(money + contraband[ent:GetClass()])
+			owner:addMoney(money + printervalue + contraband[ent:GetClass()])
 		
 			return true
 		end	
@@ -630,8 +630,6 @@ function SWEP:PrimaryAttack()
     self:SetNextSecondaryFire(self:GetNextPrimaryFire())
 	
 	if CLIENT then return end
-	
-	local Owner = self:GetOwner()
 
 	-- Make noise
 	self:EmitSound(self.FleshHit[math.random(#self.Hit)])
@@ -652,15 +650,15 @@ function SWEP:PrimaryAttack()
 		-- If the entity is valid in the contraband list, reward with money.
         if value then
 			if checkOwner(ent, self.Owner) then
-				DarkRP.notify(Owner, 1, 4, "You tried, but you own this entity!")
+				DarkRP.notify(self:GetOwner(), 1, 4, "You tried, but you own this entity!")
 			else
 				if getValue(ent, self.Owner) then -- For entities with not set values
 					ent:Remove()
 				else
-					DarkRP.notify(Owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(value)) .. " for destroying this illegal entity.")
+					DarkRP.notify(self:GetOwner(), 1, 4, "You received " .. tostring(DarkRP.formatMoney(value)) .. " for destroying this illegal entity.")
 					
 					ent:Remove()
-					Owner:addMoney(value)
+					self:GetOwner():addMoney(value)
 				end
 			end
 		end
