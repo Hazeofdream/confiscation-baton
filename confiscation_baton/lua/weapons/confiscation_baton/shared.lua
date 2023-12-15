@@ -509,7 +509,7 @@ local function getValue(ent, owner)
 
 			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["LEDLamps"][getType])) .. " for operation equipment") 
 
-			owner:addMoney(contraband["LEDLamps"][getType()])
+			owner:addMoney(contraband["LEDLamps"][getType])
 
 			return true
 		end	
