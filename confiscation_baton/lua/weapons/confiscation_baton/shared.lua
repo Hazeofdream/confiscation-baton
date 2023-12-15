@@ -665,7 +665,7 @@ function SWEP:PrimaryAttack()
     end
 end
 
-local ConfiscationBatonVersion = 1.0
+local ConfiscationBatonVersion = 2.0
 
 -- recently added console command, really only for the developer/powerusers
 -- shamelessly ported from my nightstick addon lmao
