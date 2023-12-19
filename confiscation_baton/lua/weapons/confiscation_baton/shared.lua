@@ -5,17 +5,16 @@ AddCSLuaFile()
 -- contact https:/steamcommunity.com/id/Haze_of_dream for issues if it's an emergency
 -- otherwise PLEASE use https://steamcommunity.com/workshop/filedetails/discussion/2981130069/3834298194196734223/
 
--- newly added config for previously hardcoded values
-local confiscation_config = {
-	-- controls how much the actual printer values get multiplied
-	-- we multiply to encourage hitting hard targets, only giving the base amount of the printer would discorage pd raids as it would be more profitable to print yourself.
-	["printer_multiplier"] = 5,
-	
-	-- this looks like alot until you print moonshine's predicted values
-	["moonshine_multiplier"] = 85
-}
-
 local contraband = {
+	Values  = {
+		-- controls how much the actual printer values get multiplied
+		-- we multiply to encourage hitting hard targets, only giving the base amount of the printer would discorage pd raids as it would be more profitable to print yourself.
+		["printer_multiplier"] = 5,
+		
+		-- this looks like alot until you print moonshine's predicted values
+		["moonshine_multiplier"] = 85
+	},
+
 	-- Default
 	["money_printer"] = 2000,
 	["gunlab"] = 400,
@@ -332,7 +331,7 @@ local function getValue(ent, owner)
 			local printervalue = 0
 			for _, printer in pairs(ent.printers) do
 				if IsValid(printer) then
-					money = money + printer:GetWithdrawAmount() * confiscation_config["printer_multiplier"]
+					money = money + printer:GetWithdrawAmount() * contraband["Values"]["printer_multiplier"]
 					printervalue = printervalue + contraband[printer:GetClass()]
 					printer:Remove()
 					-- p:OnWithdrawn(ply, true) -- We dont want to do this or it logs as a withdrawn, inb4 "HE WITHDREW FROM THE PRINTERS! CORRUPTION!"
@@ -371,7 +370,7 @@ local function getValue(ent, owner)
 			else 
 				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(ent:GetMoonShine() * confiscation_config["moonshine_multiplier"])) .. " in jar value.") 
 			end
-			owner:addMoney(ent:GetMoonShine() * confiscation_c["moonshine_multiplier"] + contraband[ent:GetClass()])
+			owner:addMoney(ent:GetMoonShine() * contraband["Values"]["moonshine_multiplier"] + contraband[ent:GetClass()])
 
 			return true
 		end	
@@ -665,7 +664,7 @@ function SWEP:PrimaryAttack()
     end
 end
 
-local ConfiscationBatonVersion = 2.0
+local ConfiscationBatonVersion = 2.5
 
 -- recently added console command, really only for the developer/powerusers
 -- shamelessly ported from my nightstick addon lmao
