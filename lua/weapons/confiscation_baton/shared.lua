@@ -634,9 +634,8 @@ function SWEP:PrimaryAttack()
 	self:EmitSound(self.FleshHit[math.random(#self.Hit)])
 	
 	-- Do entity check
-	local startpos = self.Owner:GetShootPos()
 	local trace = util.TraceLine({
-		start = startpos, 
+		start = self.Owner:GetShootPos(), 
 		endpos = startpos + self.Owner:GetAimVector() * 100, 
 		filter = {self.Owner}
 	})
