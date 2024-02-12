@@ -514,17 +514,17 @@ local function getValue(ent, owner)
 		end	
 		
 		if string.find(ent:GetClass(), "zgo2_lamp") and string.find(ent:GetModel(), "led") and string.find(ent:GetModel(), "tent") then
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(4000)) .. " for operation equipment") 
+			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["LEDLamps"["01"])) .. " for operation equipment") 
 
-			owner:addMoney(4000)
+			owner:addMoney(contraband["LEDLamps"["01"])
 
 			return true
 		end	
 		
 		if string.find(ent:GetClass(), "zgo2_lamp") and string.find(ent:GetModel(), "sodium") and string.find(ent:GetModel(), "tent") then
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(2000)) .. " for operation equipment") 
+			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["SodiumLamps"["01"])) .. " for operation equipment") 
 
-			owner:addMoney(2000)
+			owner:addMoney(contraband["SodiumLamps"["01"])
 
 			return true
 		end
