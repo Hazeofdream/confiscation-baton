@@ -639,12 +639,12 @@ function SWEP:PrimaryAttack()
 		endpos = startpos + self.Owner:GetAimVector() * 100, 
 		filter = {self.Owner}
 	})
-	
+
     if trace.Entity:IsValid() then
-		local ent = trace.Entity
-		local item = ent:GetClass()
-        local value = contraband[item]
-		
+	local ent = trace.Entity
+	local item = ent:GetClass()
+	local value = contraband[item]
+
 		-- If the entity is valid in the contraband list, reward with money.
         if value then
 			if checkOwner(ent, self.Owner) then
