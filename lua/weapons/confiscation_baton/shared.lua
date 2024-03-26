@@ -514,7 +514,7 @@ local function getValue(ent, owner)
 		end	
 		
 		if string.find(ent:GetClass(), "zgo2_lamp") and string.find(ent:GetModel(), "led") and string.find(ent:GetModel(), "tent") then
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["LEDLamps"["01"])) .. " for operation equipment") 
+			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["LEDLamps"]["01"])) .. " for operation equipment") 
 
 			owner:addMoney(contraband["LEDLamps"["01"])
 
@@ -522,7 +522,7 @@ local function getValue(ent, owner)
 		end	
 		
 		if string.find(ent:GetClass(), "zgo2_lamp") and string.find(ent:GetModel(), "sodium") and string.find(ent:GetModel(), "tent") then
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["SodiumLamps"["01"])) .. " for operation equipment") 
+			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["SodiumLamps"]["01"])) .. " for operation equipment") 
 
 			owner:addMoney(contraband["SodiumLamps"["01"])
 
@@ -641,9 +641,9 @@ function SWEP:PrimaryAttack()
 	})
 
     if trace.Entity:IsValid() then
-	local ent = trace.Entity
-	local item = ent:GetClass()
-	local value = contraband[item]
+		local ent = trace.Entity
+		local item = ent:GetClass()
+		local value = contraband[item]
 
 		-- If the entity is valid in the contraband list, reward with money.
         if value then
@@ -663,7 +663,7 @@ function SWEP:PrimaryAttack()
     end
 end
 
-local ConfiscationBatonVersion = 2.5
+local ConfiscationBatonVersion = 2.6
 
 -- recently added console command, really only for the developer/powerusers
 -- shamelessly ported from my nightstick addon lmao
