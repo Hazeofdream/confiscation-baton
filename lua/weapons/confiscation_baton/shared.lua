@@ -516,7 +516,7 @@ local function getValue(ent, owner)
 		if string.find(ent:GetClass(), "zgo2_lamp") and string.find(ent:GetModel(), "led") and string.find(ent:GetModel(), "tent") then
 			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["LEDLamps"]["01"])) .. " for operation equipment") 
 
-			owner:addMoney(contraband["LEDLamps"["01"])
+			owner:addMoney(contraband["LEDLamps"]["01"])
 
 			return true
 		end	
@@ -663,7 +663,7 @@ function SWEP:PrimaryAttack()
     end
 end
 
-local ConfiscationBatonVersion = 2.6
+local ConfiscationBatonVersion = 2.7
 
 -- recently added console command, really only for the developer/powerusers
 -- shamelessly ported from my nightstick addon lmao
