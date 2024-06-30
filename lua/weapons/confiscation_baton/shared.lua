@@ -650,7 +650,7 @@ function SWEP:PrimaryAttack()
 			if checkOwner(ent, self.Owner) then
 				DarkRP.notify(self:GetOwner(), 1, 4, "You tried, but you own this entity!")
 			else
-				if getValue(ent, self.Owner) then -- For entities with not set values
+				if getValue(ent, self.Owner) then -- For entities with no set values
 					ent:Remove()
 				else
 					DarkRP.notify(self:GetOwner(), 1, 4, "You received " .. tostring(DarkRP.formatMoney(value)) .. " for destroying this illegal entity.")
