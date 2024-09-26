@@ -109,6 +109,7 @@ local contraband = {
 	},
 
 	Pots = {
+			[".m"] = 2000, -- Regular
 			["04"] = 1000, -- Basic
 			["01"] = 3000, -- Auto pot
 			["02"] = 4000, -- Jumbo Pot
@@ -567,11 +568,6 @@ local function getValue(ent, owner)
 		if string.find(ent:GetClass(), "zgo2_rack") then
 			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
 			local getType = string.sub(pathtrim, 10, 11)
-			
-			local Pots = {
-					[".m"] = 4000, -- Regular
-					["01"] = 2000 -- Small
-			}
 			
 			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["Pots"][getType])) .. " for holding equipment") 
 
