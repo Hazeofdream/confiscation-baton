@@ -637,7 +637,7 @@ function SWEP:PrimaryAttack()
     }
 
 	self:GetOwner():LagCompensation(true)
-    local trace = util.TraceLine(batonTrace)
+	local trace = util.TraceLine(batonTrace)
 	self:GetOwner():LagCompensation(false)
 
     if trace.Entity:IsValid() then
