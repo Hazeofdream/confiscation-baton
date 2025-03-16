@@ -630,11 +630,15 @@ function SWEP:PrimaryAttack()
 	self:EmitSound(self.FleshHit[math.random(#self.Hit)])
 	
 	-- Do entity check
-	local trace = util.TraceLine({
-		start = self.Owner:GetShootPos(), 
-		endpos = startpos + self.Owner:GetAimVector() * 100, 
-		filter = {self.Owner}
-	})
+    local batonTrace = {
+        start = self.Owner:GetShootPos(),
+        endpos = self.Owner:GetShootPos() + self.Owner:GetAimVector() * 90,
+        filter = self.Owner
+    }
+
+	self:GetOwner():LagCompensation(true)
+    local trace = util.TraceLine(batonTrace)
+	self:GetOwner():LagCompensation(false)
 
     if trace.Entity:IsValid() then
 		local ent = trace.Entity
@@ -659,7 +663,7 @@ function SWEP:PrimaryAttack()
     end
 end
 
-local ConfiscationBatonVersion = 2.8
+local ConfiscationBatonVersion = 3.0
 
 -- recently added console command, really only for the developer/powerusers
 -- shamelessly ported from my nightstick addon lmao
