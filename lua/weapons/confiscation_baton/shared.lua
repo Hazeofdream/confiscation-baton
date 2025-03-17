@@ -240,11 +240,18 @@ end
 
 local function checkOwner(ent, owner)
 	-- NOTICE HOW THIS IS ALL ZERO'S SHIT????
-	if string.sub(ent:GetClass(), 1, 4) == "zwf_" then return end
-	if string.sub(ent:GetClass(), 1, 7) == "zmlab2_" then return end
-	if string.sub(ent:GetClass(), 1, 4) == "zyb_" then return end
-	if string.sub(ent:GetClass(), 1, 5) == "zgo2_" then return end
-	if string.sub(ent:GetClass(), 1, 4) == "zcm_" then return end
+	local strings = {
+		"zwf_",
+		"zmlab2_",
+		"zyb_",
+		"zgo2_",
+		"zcm_"
+	}
+
+	for _, comp in pairs(strings) do
+		if string.StartsWith(ent:GetClass(), comp) then return end
+	end
+
 	if owner == ent:Getowning_ent() then return true end
 end
 
