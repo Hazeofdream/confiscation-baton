@@ -12,41 +12,49 @@ local contraband = {
 		["printer_multiplier"] = 5,
 		
 		-- this looks like alot until you print moonshine's predicted values
-		["moonshine_multiplier"] = 85
+		["moonshine_multiplier"] = 42,
+		
+		-- bonus payout added for every x seconds an entity exists
+		-- This is intentionally high because of the following considerations:
+		-- 1) It has to obviously be worth raiding, if you are getting consistently less than 100% of the entity's value back then there is no point in raiding at all, 
+		-- 2) The longer an entity exist, the more likelihood of the base being extremely tough to crack, so we need to make sure that it's worth the risk of cracking a tough base, and
+		-- 3) We dont want to make the time scale too harshly towards the end or it encourages police to wait intentionally, and encouraging non-interaction is detrimental to roleplay.
+		["time_bonus_interval"] = 20,
+		["time_bonus_amount"] = 1800
 	},
 
 	-- Default
-	["money_printer"] = 2000,
-	["gunlab"] = 400,
+	["money_printer"] = 1000,
+	["gunlab"] = 200,
 	
 	-- Zero's Weedfarm aka Zero's GrowOP
-	["zwf_doobytable"] = 8000,
-	["zwf_mixer"] = 8000,
-	["zwf_muffinmix"] = 700,
-	["zwf_oven"] = 8000,
-	["zwf_generator"] = 8000,
-	["zwf_fuel"] = 2000,
-	["zwf_lamp"] = 5000,
-	["zwf_ventilator"] = 5000,
-	["zwf_outlet"] = 500,
-	["zwf_pot"] = 500,
-	["zwf_pot_hydro"] = 800,
-	["zwf_soil"] = 500,
-	["zwf_watertank"] = 5000,
-	["zwf_drystation"] = 5000,
-	["zwf_packingstation"] = 5000,
-	["zwf_autopacker"] = 15000,
-	["zwf_splice_lab"] = 8000,
-	["zwf_seed_bank"] = 2000,
-	["zwf_seed"] = 5000,
-	["zwf_nutrition"] = 4000,
-	["zwf_weedstick"] = 2000,
-	["zwf_muffin"] = 2000,
-	["zwf_bong01_ent"] = 2000,
-	["zwf_bong02_ent"] = 2000,
-	["zwf_bong03_ent"] = 2000,
-	["zwf_seed_bank"] = 2000,
-	["zwf_jar"] = 5000, -- Although this has values like THC and grams that affect this, Zero's does not adjust this until it turns into a weedblock.
+	["zwf_doobytable"] = 4000,
+	["zwf_mixer"] = 4000,
+	["zwf_muffinmix"] = 350,
+	["zwf_oven"] = 4000,
+	["zwf_generator"] = 4000,
+	["zwf_fuel"] = 1000,
+	["zwf_lamp"] = 2500,
+	["zwf_ventilator"] = 2500,
+	["zwf_outlet"] = 250,
+	["zwf_pot"] = 250,
+	["zwf_pot_hydro"] = 400,
+	["zwf_soil"] = 250,
+	["zwf_watertank"] = 2500,
+	["zwf_drystation"] = 2500,
+	["zwf_packingstation"] = 2500,
+	["zwf_autopacker"] = 7500,
+	["zwf_splice_lab"] = 4000,
+	["zwf_seed_bank"] = 1000,
+	["zwf_seed"] = 2500,
+	["zwf_nutrition"] = 2000,
+	["zwf_weedstick"] = 1000,
+	["zwf_muffin"] = 1000,
+	["zwf_bong01_ent"] = 1000,
+	["zwf_bong02_ent"] = 1000,
+	["zwf_bong03_ent"] = 1000,
+	["zwf_seed_bank"] = 1000,
+	["zwf_jar"] = 2500,
 	
 	-- Zero's GrowOP 2
 	["zgo2_lamp"] = 0,
@@ -54,153 +62,140 @@ local contraband = {
 	["zgo2_pot"] = 0,
 	["zgo2_rack"] = 0,
 	["zgo2_backmix"] = 0,
-	["zgo2_doobytable"] = 2000,
-	["zgo2_mixer"] = 2000,
-	["zgo2_oven"] = 2000,
-	["zgo2_soil"] = 400,
-	["zgo2_battery"] =  2000,
-	["zgo2_bulb"] =  2000,
-	["zgo2_seedlibary"] =  2000,
-	["zgo2_seed"] =  2000,
-	["zgo2_watertank_small"] =  6000,
-	["zgo2_watertank"] =  8000,
-	["zgo2_pump"] =  6000,
-	["zgo2_splicer"] =  2000,
-	["zgo2_packer"] =  8000,
-	["zgo2_dryline"] =  3000, -- compensate for lines (and distance if possible)
-	["zgo2_weedblock"] = 40000, -- Although this has values like grams that affect this, Zero's does not adjust this until it turns into a jar.
-	["zgo2_logbook"] = 2000,
-	["zgo2_crate"] = 2000,
-	["zgo2_motor"] = 2000,
+	["zgo2_doobytable"] = 1000,
+	["zgo2_mixer"] = 1000,
+	["zgo2_oven"] = 1000,
+	["zgo2_soil"] = 200,
+	["zgo2_battery"] = 1000,
+	["zgo2_bulb"] = 1000,
+	["zgo2_seedlibary"] = 1000,
+	["zgo2_seed"] = 1000,
+	["zgo2_watertank_small"] = 3000,
+	["zgo2_watertank"] = 4000,
+	["zgo2_pump"] = 3000,
+	["zgo2_splicer"] = 1000,
+	["zgo2_packer"] = 4000,
+	["zgo2_dryline"] = 1500,
+	["zgo2_weedblock"] = 20000,
+	["zgo2_logbook"] = 1000,
+	["zgo2_crate"] = 1000,
+	["zgo2_motor"] = 1000,
 	
 	-- Zeros' Meth Lab 2
-	["zmlab2_tent"] = 1500,
-	["zmlab2_equipment"] = 1500,
-	["zmlab2_item_autobreaker"] = 8000,
-	["zmlab2_item_acid"] = 2000,
-	["zmlab2_item_aluminium"] = 2000,
-	["zmlab2_item_lox"] = 2000,
-	["zmlab2_item_methylamine"] = 2000,
-	["zmlab2_machine_filler"] = 2000,
-	["zmlab2_machine_filter"] = 2000,
-	["zmlab2_machine_frezzer"] = 2000,
-	["zmlab2_machine_furnace"] = 2000,
-	["zmlab2_machine_mixer"] = 2000,
-	["zmlab2_machine_ventilation"] = 2000,
-	["zmlab2_storage"] = 2000,
-	["zmlab2_table"] = 2000,
-	
-	-- These used to be hardcoded in the dynamic check but it made more sense to move here
+	["zmlab2_tent"] = 750,
+	["zmlab2_equipment"] = 750,
+	["zmlab2_item_autobreaker"] = 4000,
+	["zmlab2_item_acid"] = 1000,
+	["zmlab2_item_aluminium"] = 1000,
+	["zmlab2_item_lox"] = 1000,
+	["zmlab2_item_methylamine"] = 1000,
+	["zmlab2_machine_filler"] = 1000,
+	["zmlab2_machine_filter"] = 1000,
+	["zmlab2_machine_frezzer"] = 1000,
+	["zmlab2_machine_furnace"] = 1000,
+	["zmlab2_machine_mixer"] = 1000,
+	["zmlab2_machine_ventilation"] = 1000,
+	["zmlab2_storage"] = 1000,
+	["zmlab2_table"] = 1000,
+
 	SodiumLamps = {
-			["01"] = 2000,
-			["02"] = 4000,
-			["03"] = 8000
+			["01"] = 1000,
+			["02"] = 2000,
+			["03"] = 4000
 	},
 
 	LEDLamps = {
-			["01"] = 4000, -- Small
-			["02"] = 8000, -- Medium
-			["03"] = 12000 -- Large
+			["01"] = 2000,
+			["02"] = 4000,
+			["03"] = 6000
 	},
 
 	Generators = {
-			["01"] = 4000, -- Small
-			[".m"] = 8000 -- Large
+			["01"] = 2000,
+			[".m"] = 4000
 	},
 
 	Pots = {
-			[".m"] = 2000, -- Regular
-			["04"] = 1000, -- Basic
-			["01"] = 3000, -- Auto pot
-			["02"] = 4000, -- Jumbo Pot
-			["03"] = 3000, -- Valhalla
-			["05"] = 2000, -- Steel
-			["06"] = 1000 -- Jute Bag
+			[".m"] = 1000,
+			["04"] = 500,
+			["01"] = 1500,
+			["02"] = 2000,
+			["03"] = 1500,
+			["05"] = 1000,
+			["06"] = 500
 	},
 
 	Mixes = {
-			["muffin"] = 1000,
-			["brownie"] = 1000,
-			["patty"] = 1000,
-			["cookie"] = 1000,
-			["cinnamon"] = 1000,
-			["donut"] = 1000
+			["muffin"] = 500,
+			["brownie"] = 500,
+			["patty"] = 500,
+			["cookie"] = 500,
+			["cinnamon"] = 500,
+			["donut"] = 500
 	},
 
 	Tents = {
-			["01"] = 4000, -- Big
-			["02"] = 8000 -- Small
+			["01"] = 2000,
+			["02"] = 4000
 	},
 	
 	-- Zero's Yeastbeast aka Moonshine
-	["zyb_constructionkit_condenser"] = 5000,
-	["zyb_constructionkit_cooler"] = 5000,
-	["zyb_fermbarrel"] = 1000,
-	["zyb_yeastgrinder"] = 4000,
-	["zyb_jarcrate"] = 400,
-	["zyb_jarpack"] = 400,
-	["zyb_paperbag"] = 200,
-	["zyb_sugar"] = 200,
-	["zyb_water"] = 200,
-	["zyb_fuel"] = 100,
-	["zyb_yeast"] = 200,
-	["zyb_distillery_cooler"] = 9000,
-	["zyb_distillery_condenser"] = 9000,
+	["zyb_constructionkit_condenser"] = 2500,
+	["zyb_constructionkit_cooler"] = 2500,
+	["zyb_fermbarrel"] = 500,
+	["zyb_yeastgrinder"] = 2000,
+	["zyb_jarcrate"] = 200,
+	["zyb_jarpack"] = 200,
+	["zyb_paperbag"] = 100,
+	["zyb_sugar"] = 100,
+	["zyb_water"] = 100,
+	["zyb_fuel"] = 50,
+	["zyb_yeast"] = 100,
+	["zyb_distillery_cooler"] = 4500,
+	["zyb_distillery_condenser"] = 4500,
 	
-	-- Zeros' CrackerMaker (aka Fireworks)
-	["zcm_blackpowder"] = 4000,
-	["zcm_crackermachine"] = 10000,
-	["zcm_paperroll"] = 4000,
-	["zcm_firecracker"] = 3000,
+	-- Zeros' CrackerMaker
+	["zcm_blackpowder"] = 2000,
+	["zcm_crackermachine"] = 5000,
+	["zcm_paperroll"] = 2000,
+	["zcm_firecracker"] = 1500,
 	
 	-- sPrinters
-	["sprinter_tier_1"] = 10000,
-	["sprinter_tier_2"] = 12000,
-	["sprinter_tier_3"] = 14000,
-	["sprinter_tier_4"] = 18000,
+	["sprinter_tier_1"] = 5000,
+	["sprinter_tier_2"] = 6000,
+	["sprinter_tier_3"] = 7000,
+	["sprinter_tier_4"] = 9000,
 	
 	-- Cocaine Factory
-	["cocaine_baking_soda"] = 100,
-	["cocaine_water"] = 150,
-	["cocaine_box"] = 200,
-	["cocaine_bucket"] = 150,
-	["cocaine_bucket"] = 150,
-	["cocaine_extractor"] = 3500,
-	["cocaine_drying_rack"] = 3000,
-	["cocaine_drying_rack"] = 3000,
-	["cocaine_gas"] = 700,
-	["cocaine_cooking_plate"] = 500,
-	["cocaine_leaves"] = 100,
-	["cocaine_stove"] = 3000,
-	["cocaine_pack"] = 5000,
-	
-	-- THESE ARE DYNAMIC VALUES
-	-- They are dynamic because while they have a base value, they have additional values that can add onto, such as weed purity and content.
-	-- Any additions must be specified and added in block line 186
-	-- Some addons (mostly zero's) does not bode at all with how darkrp's Getowning_ent() handles checking owners, If yours is one of those, make an exception in line 177
-	["zwf_palette"] = 5000,
-	["zwf_weedblock"] = 2000,
-	["zwf_seed"] = 2000,
-	
-	-- can have additional attachments like the cooler
-	["zyb_distillery"] = 10000,
+	["cocaine_baking_soda"] = 50,
+	["cocaine_water"] = 75,
+	["cocaine_box"] = 100,
+	["cocaine_bucket"] = 75,
+	["cocaine_extractor"] = 1750,
+	["cocaine_drying_rack"] = 1500,
+	["cocaine_gas"] = 350,
+	["cocaine_cooking_plate"] = 250,
+	["cocaine_leaves"] = 50,
+	["cocaine_stove"] = 1500,
+	["cocaine_pack"] = 2500,
 
-	["sprinter_rack"] = 50000,
-
-	["zmlab2_item_meth"] = 500,
-	["zmlab2_item_crate"] = 1000,
-	["zmlab2_item_palette"] = 2000,
-
-	["zyb_jar"] = 100,
-	
-	["zgo2_jarcrate"] = 100,
-	["zgo2_weedbranch"] = 1000,
-	["zgo2_jar"] = 1000,
-	["zgo2_baggy"] = 500,
-	["zgo2_palette"] = 100,
-	["zgo2_clipper"] =  10000, -- motor moment!
-
-	["zcm_box"] = 400
+	-- Dynamic values
+	["zwf_palette"] = 2500,
+	["zwf_weedblock"] = 1000,
+	["zwf_seed"] = 1000,
+	["zyb_distillery"] = 5000,
+	["sprinter_rack"] = 25000,
+	["zmlab2_item_meth"] = 250,
+	["zmlab2_item_crate"] = 500,
+	["zmlab2_item_palette"] = 1000,
+	["zyb_jar"] = 50,
+	["zgo2_jarcrate"] = 50,
+	["zgo2_weedbranch"] = 500,
+	["zgo2_jar"] = 500,
+	["zgo2_baggy"] = 250,
+	["zgo2_palette"] = 50,
+	["zgo2_clipper"] = 5000,
+	["zcm_box"] = 200
 }
 
 if CLIENT then
@@ -209,6 +204,7 @@ if CLIENT then
 end
 
 DEFINE_BASECLASS("stick_base")
+
 
 SWEP.Instructions = "Left click to seize contraband."
 SWEP.Purpose = "To keep the streets clean, or piss off criminals."
@@ -255,6 +251,88 @@ local function checkOwner(ent, owner)
 	if owner == ent:Getowning_ent() then return true end
 end
 
+-- This is all the calculations for how much a user is awarded per aliveTime of the entity
+-- Longer time alive = more money, Frequency and amount per interval is determined by config
+local function getTimeAliveBonus(ent)
+	local interval = contraband["Values"]["time_bonus_interval"] or 120
+	local value = contraband["Values"]["time_bonus_amount"] or 250
+
+	if interval <= 0 or value <= 0 then return 0 end
+	if not IsValid(ent) or not ent.GetCreationTime then return 0 end
+
+	local aliveTime = math.max(CurTime() - ent:GetCreationTime(), 0)
+
+	return math.floor(aliveTime / interval) * value
+end
+
+local function getContrabandValue(ent)
+	local baseValue = contraband[ent:GetClass()]
+
+	return baseValue + getTimeAliveBonus(ent)
+end
+
+
+local function formatAliveTime(seconds)
+	seconds = math.floor(seconds)
+
+	local hours = math.floor(seconds / 3600)
+	local minutes = math.floor((seconds % 3600) / 60)
+	local secs = seconds % 60
+
+	local str = ""
+
+	if hours > 0 then
+		str = str .. hours .. "h"
+	end
+
+	if minutes > 0 then
+		str = str .. minutes .. "m"
+	end
+
+	if secs > 0 or str == "" then
+		str = str .. secs .. "s"
+	end
+
+	return str
+end
+
+local function notifyConfiscation(owner, baseAmount, timeBonus, aliveTime, extraAmount, extraLabel, contextLabel)
+	local message = "You received " .. DarkRP.formatMoney(baseAmount)
+
+	if timeBonus > 0 then
+		message = message ..
+			" (" ..
+			"+" .. DarkRP.formatMoney(timeBonus) ..
+			" for " .. formatAliveTime(aliveTime) ..
+			" alive time)"
+	end
+
+	if contextLabel then
+		message = message .. " for " .. contextLabel
+	else
+		message = message .. " for this entity"
+	end
+
+	if extraAmount and extraAmount > 0 then
+		message = message ..
+			" and " ..
+			DarkRP.formatMoney(extraAmount)
+
+		if extraLabel then
+			message = message .. " in " .. extraLabel
+		end
+	end
+
+	message = message .. "."
+
+	-- DarkRP popup
+	DarkRP.notify(owner, 1, 6, message)
+
+	-- Console output
+	if IsValid(owner) then
+		owner:PrintMessage(HUD_PRINTCONSOLE, "[Confiscation Baton] " .. message .. "\n")
+	end
+end
 
 -- For some items like weed and meth, We use the original addons values to get the real value rather than use a flat amount.
 local function getValue(ent, owner)
@@ -266,8 +344,8 @@ local function getValue(ent, owner)
 
 			if ent:GetMoney() == 0 then return false -- If it has nothing, return false and remand it to config values
 			else
-				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(ent:GetMoney())) .. " in weed.")
-				owner:addMoney(ent:GetMoney() + contraband[ent:GetClass()])
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, ent:GetMoney(), "weed")
+				owner:addMoney(ent:GetMoney() + getContrabandValue(ent))
 			end
 			
 			return true
@@ -275,16 +353,16 @@ local function getValue(ent, owner)
 
 		if string.find(ent:GetClass(), "zwf_weedblock") then
 
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(zwf.config.Plants[ent:GetWeedID()].sellvalue)) .. " in weed.") 
-			owner:addMoney(zwf.config.Plants[ent:GetWeedID()].sellvalue + contraband[ent:GetClass()])
+			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, zwf.config.Plants[ent:GetWeedID()].sellvalue, "weed")
+			owner:addMoney(zwf.config.Plants[ent:GetWeedID()].sellvalue + getContrabandValue(ent))
 		
 			return true
 		end
 		
 		if string.find(ent:GetClass(), "zwf_seed") and not string.find(ent:GetClass(), "bank") then -- Seed banks, they have "seed" so lmao on me i guess
 
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(zwf.config.Plants[ent:GetSeedID()].sellvalue)) .. " in weed.")
-			owner:addMoney(zwf.config.Plants[ent:GetSeedID()].sellvalue + contraband[ent:GetClass()])
+			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, zwf.config.Plants[ent:GetSeedID()].sellvalue, "weed")
+			owner:addMoney(zwf.config.Plants[ent:GetSeedID()].sellvalue + getContrabandValue(ent))
 		
 			return true
 		end
@@ -295,10 +373,10 @@ local function getValue(ent, owner)
 		if string.find(ent:GetClass(), "zmlab2_item_meth") then 
 			if ent:GetMethAmount() == 0 and ent:GetMethQuality() == 0 then return false
 			else
-				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(ent:GetMethAmount() + ent:GetMethQuality())) .. " in meth.")
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, ent:GetMethAmount() + ent:GetMethQuality(), "meth")
 			end
 
-			owner:addMoney(ent:GetMethAmount() + ent:GetMethQuality() + contraband[ent:GetClass()])
+			owner:addMoney((ent:GetMethAmount() + ent:GetMethQuality()) + getContrabandValue(ent))
 		
 			return true
 		end		
@@ -306,10 +384,10 @@ local function getValue(ent, owner)
 		if string.find(ent:GetClass(), "zmlab2_item_crate") then
 			if ent:GetMethAmount() == 0 and ent:GetMethQuality() <= 1 then return false-- zero counts an empty crate as 1 in meth quality lmao
 			else 
-				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(ent:GetMethAmount() + ent:GetMethQuality())) .. " in meth.")
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, ent:GetMethAmount() + ent:GetMethQuality(), "meth")
 			end
 
-			owner:addMoney(ent:GetMethAmount() + ent:GetMethQuality() + contraband[ent:GetClass()])
+			owner:addMoney((ent:GetMethAmount() + ent:GetMethQuality()) + getContrabandValue(ent))
 		
 			return true
 		end		
@@ -323,10 +401,9 @@ local function getValue(ent, owner)
 		
 			if money == 0 then return false
 			else 
-				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(money)) .. " in meth.")
-			end
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, money, "meth")			end
 
-			owner:addMoney(money + contraband[ent:GetClass()])
+			owner:addMoney(money + getContrabandValue(ent))
 		
 			return true
 		end
@@ -340,19 +417,20 @@ local function getValue(ent, owner)
 			for _, printer in pairs(ent.printers) do
 				if IsValid(printer) then
 					money = money + printer:GetWithdrawAmount() * contraband["Values"]["printer_multiplier"]
-					printervalue = printervalue + contraband[printer:GetClass()]
+					printervalue = printervalue + getContrabandValue(printer)
+					-- printers removed after calculations complete
 					printer:Remove()
 					-- p:OnWithdrawn(ply, true) -- We dont want to do this or it logs as a withdrawn, inb4 "HE WITHDREW FROM THE PRINTERS! CORRUPTION!"
 				end
 			end
 			
 			if money == 0 then
-				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity")
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
 			else
-				DarkRP.notify(owner, 1, 4, string.format("You received %s for this entity, %s in printer value and %s in printed money.", DarkRP.formatMoney(contraband[ent:GetClass()]), DarkRP.formatMoney(printervalue), DarkRP.formatMoney(money)))
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, printervalue + money, "printer value and printed money")
 			end
 
-			owner:addMoney(money + printervalue + contraband[ent:GetClass()])
+			owner:addMoney(money + printervalue + getContrabandValue(ent))
 		
 			return true
 		end	
@@ -360,12 +438,12 @@ local function getValue(ent, owner)
 		if string.find(ent:GetClass(), "sprinter_tier") then 
 			local money = 0
 			if ent:GetWithdrawAmount() == 0 then
-				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity")
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
 			else 
-				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(ent:GetWithdrawAmount())) .. " in printed money.")	
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, ent:GetWithdrawAmount(), "printed money")	
 				money = ent:GetWithdrawAmount()
 			end
-			owner:addMoney(ent:GetWithdrawAmount() + contraband[ent:GetClass()])
+			owner:addMoney(ent:GetWithdrawAmount() + getContrabandValue(ent))
 
 			return true
 		end
@@ -376,9 +454,9 @@ local function getValue(ent, owner)
 		if string.find(ent:GetClass(), "zyb_jar") and not string.find(ent:GetClass(), "pack") and not string.find(ent:GetClass(), "crate") then -- SCREW YOU ZERO, STOP HAVING SIMILARLY NAMED ITEMS
 			if ent:GetMoonShine() == 0 then return false
 			else 
-				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(ent:GetMoonShine() * confiscation_config["moonshine_multiplier"])) .. " in jar value.") 
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, ent:GetMoonShine() * contraband["Values"]["moonshine_multiplier"], "jar value") 
 			end
-			owner:addMoney(ent:GetMoonShine() * contraband["Values"]["moonshine_multiplier"] + contraband[ent:GetClass()])
+			owner:addMoney(ent:GetMoonShine() * contraband["Values"]["moonshine_multiplier"] + getContrabandValue(ent))
 
 			return true
 		end	
@@ -388,9 +466,9 @@ local function getValue(ent, owner)
 
 			if ent:GetJarCount() == 0 then return false
 			else 
-				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(MegaLongFormula)) .. " in contained jar values") 
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, MegaLongFormula, "contained jar values") 
 			end
-			owner:addMoney(MegaLongFormula + (ent:GetJarCount() + contraband["zyb_jar"]) + contraband[ent:GetClass()])
+			owner:addMoney(MegaLongFormula + (ent:GetJarCount() + contraband["zyb_jar"]) + getContrabandValue(ent))
 
 			return true
 		end		
@@ -399,21 +477,23 @@ local function getValue(ent, owner)
 			local totalvalue = 0
 			if IsValid(ent:GetCooler()) then
 				totalvalue = totalvalue + contraband["zyb_distillery_cooler"]
+				-- remove attached cooler after value calculation
 				ent:GetCooler():Remove()
 			end			
 			
 			if IsValid(ent:GetCondenser()) then
 				totalvalue = totalvalue + contraband["zyb_distillery_condenser"]
+				-- remove attached condenser after value calculation
 				ent:GetCondenser():Remove()
 			end
 
 			if totalvalue then
-				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(totalvalue)) .. " from attached equipment")	
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, totalvalue, "attached equipment")	
 			else
-				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity")
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
 			end
 			
-			owner:addMoney(contraband[ent:GetClass()] + totalvalue)
+			owner:addMoney(getContrabandValue(ent) + totalvalue)
 
 			return true
 		end
@@ -423,7 +503,7 @@ local function getValue(ent, owner)
 	
 	if string.sub(ent:GetClass(), 1, 5) == "zgo2_" then
 		if string.find(ent:GetClass(), "zgo2_weedbranch") then
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(zgo2.Plant.GetWeedAmount(ent:GetPlantID()))) .. " for this entity and " .. tostring(DarkRP.formatMoney(zgo2.Plant.GetTotalMoney(ent:GetPlantID()))) .. " in weed") 
+			notifyConfiscation(owner, zgo2.Plant.GetWeedAmount(ent:GetPlantID()), zgo2.Plant.GetTotalMoney(ent:GetPlantID()), "weed") 
 
 			owner:addMoney(zgo2.Plant.GetTotalMoney(ent:GetPlantID()))
 
@@ -432,11 +512,11 @@ local function getValue(ent, owner)
 		
 		if string.find(ent:GetClass(), "zgo2_clipper") then
 			if ent:GetHasMotor() then 
-				local value = contraband[ent:GetClass()] + contraband["zgo2_motor"]
-				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this equipment and " .. tostring(DarkRP.formatMoney(contraband["zgo2_motor"])) .. " in parts") 
+				local value = getContrabandValue(ent) + contraband["zgo2_motor"]
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, contraband["zgo2_motor"], "parts", "equipment") 
 			else
-				value = contraband[ent:GetClass()]
-				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(value)) .. " for equipment") 
+				value = getContrabandValue(ent)
+				notifyConfiscation(owner, value, nil, nil, "equipment") 
 			end
 
 			owner:addMoney(value)
@@ -446,15 +526,15 @@ local function getValue(ent, owner)
 		
 		if string.find(ent:GetClass(), "zgo2_jar")  and not string.find(ent:GetClass(), "crate") then
 			local WeedValue = ent:GetWeedAmount() * ent:GetWeedTHC() -- im using this cause growop 2 is retarded and doesn't have a direct function for checking money (except for when exporting the data, no im not sifting that shit)
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(WeedValue)) .. " in weed") 
-			owner:addMoney(WeedValue + contraband[ent:GetClass()])
+			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, WeedValue, "weed") 
+			owner:addMoney(WeedValue + getContrabandValue(ent))
 
 			return true
 		end		
 		
 		if string.find(ent:GetClass(), "zgo2_weedblock")  then	
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity") 
-			owner:addMoney(contraband[ent:GetClass()])
+			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
+			owner:addMoney(getContrabandValue(ent))
 
 			return true
 		end		
@@ -463,12 +543,12 @@ local function getValue(ent, owner)
 			money = contraband["zgo2_weedblock"] * #ent.WeedList
 			
 			if #ent.WeedList > 0 then
-				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(contraband["zgo2_weedblock"] * #ent.WeedList)).. " in weed blocks") 
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, contraband["zgo2_weedblock"] * #ent.WeedList, "weed blocks") 
 			else
-				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity")
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
 			end
 
-			owner:addMoney(contraband[ent:GetClass()] + money)
+			owner:addMoney(getContrabandValue(ent) + money)
 			return true
 		end	
 		
@@ -481,20 +561,20 @@ local function getValue(ent, owner)
 			end
 			
 			if money == 0 then
-				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(money)).. " in weed jars") 
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, money, "weed jars") 
 			else
-				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity")
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
 			end
 
-			owner:addMoney(contraband[ent:GetClass()] + money)
+			owner:addMoney(getContrabandValue(ent) + money)
 			return true
 		end
 		
 		if string.find(ent:GetClass(), "zgo2_baggy") then
 			local WeedValue = ent:GetWeedAmount() * ent:GetWeedTHC()
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(WeedValue)) .. " in weed") 
+			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, WeedValue, "weed") 
 		
-			owner:addMoney(WeedValue + contraband[ent:GetClass()])
+			owner:addMoney(WeedValue + getContrabandValue(ent))
 
 			return true
 		end
@@ -503,7 +583,7 @@ local function getValue(ent, owner)
 			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
 			local getType = string.sub(pathtrim, 17, 18)
 
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["SodiumLamps"][getType])) .. " for operation equipment") 
+			notifyConfiscation(owner, contraband["SodiumLamps"][getType], nil, nil, "operation equipment") 
 
 			owner:addMoney(contraband["SodiumLamps"][getType])
 
@@ -514,7 +594,7 @@ local function getValue(ent, owner)
 			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
 			local getType = string.sub(pathtrim, 15, 16)
 
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["LEDLamps"][getType])) .. " for operation equipment") 
+			notifyConfiscation(owner, contraband["LEDLamps"][getType], nil, nil, "operation equipment") 
 
 			owner:addMoney(contraband["LEDLamps"][getType])
 
@@ -522,7 +602,7 @@ local function getValue(ent, owner)
 		end	
 		
 		if string.find(ent:GetClass(), "zgo2_lamp") and string.find(ent:GetModel(), "led") and string.find(ent:GetModel(), "tent") then
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["LEDLamps"]["01"])) .. " for operation equipment") 
+			notifyConfiscation(owner, contraband["LEDLamps"]["01"], nil, nil, "operation equipment") 
 
 			owner:addMoney(contraband["LEDLamps"]["01"])
 
@@ -530,7 +610,7 @@ local function getValue(ent, owner)
 		end	
 		
 		if string.find(ent:GetClass(), "zgo2_lamp") and string.find(ent:GetModel(), "sodium") and string.find(ent:GetModel(), "tent") then
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["SodiumLamps"]["01"])) .. " for operation equipment") 
+			notifyConfiscation(owner, contraband["SodiumLamps"]["01"], nil, nil, "operation equipment") 
 
 			owner:addMoney(contraband["SodiumLamps"]["01"])
 
@@ -541,7 +621,7 @@ local function getValue(ent, owner)
 			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
 			local getType = string.sub(pathtrim, 15, 16)
 			
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["Generators"][getType])) .. " for operation equipment") 
+			notifyConfiscation(owner, contraband["Generators"][getType], nil, nil, "operation equipment") 
 
 			owner:addMoney(contraband["Generators"][getType])
 
@@ -553,7 +633,7 @@ local function getValue(ent, owner)
 			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
 			local getType = string.sub(pathtrim, 9, 10)
 			
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["Pots"][getType])) .. " for growing equipment") 
+			notifyConfiscation(owner, contraband["Pots"][getType], nil, nil, "growing equipment") 
 
 			owner:addMoney(contraband["Pots"][getType])
 
@@ -565,7 +645,7 @@ local function getValue(ent, owner)
 			local mdltrim = string.Split(pathtrim, ".mdl")[1]
 			local getType = string.sub(mdltrim, 14, 25)
 			
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["Mixes"][getType])) .. " for ingrediants") 
+			notifyConfiscation(owner, contraband["Mixes"][getType], nil, nil, "ingredients") 
 
 			owner:addMoney(contraband["Mixes"][getType])
 
@@ -576,7 +656,7 @@ local function getValue(ent, owner)
 			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
 			local getType = string.sub(pathtrim, 10, 11)
 			
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["Pots"][getType])) .. " for holding equipment") 
+			notifyConfiscation(owner, contraband["Pots"][getType], nil, nil, "holding equipment") 
 
 			owner:addMoney(contraband["Pots"][getType])
 
@@ -602,10 +682,10 @@ local function getValue(ent, owner)
 			end
 			
 			if stored == 0 then
-				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["Tents"][getType] + stored)) .. " for the operating tent") 
+				notifyConfiscation(owner, contraband["Tents"][getType], nil, nil, "the operating tent") 
 				owner:addMoney(contraband["Tents"][getType])
 			else
-				DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband["Tents"][getType] + stored)) .. " for the operating tent and attached equipment") 
+				notifyConfiscation(owner, contraband["Tents"][getType], stored, "attached equipment", "the operating tent") 
 				owner:addMoney(contraband["Tents"][getType] + stored)
 			end
 
@@ -619,9 +699,9 @@ local function getValue(ent, owner)
 
 		if ent:GetFireworkCount() == 0 then return false
 		else 
-			DarkRP.notify(owner, 1, 4, "You received " .. tostring(DarkRP.formatMoney(contraband[ent:GetClass()])) .. " for this entity and " .. tostring(DarkRP.formatMoney(MegaLongFormula)) .. " in contained jar values") 
+			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, MegaLongFormula, "contained jar values") 
 		end
-		owner:addMoney(MegaLongFormula + contraband[ent:GetClass()])
+		owner:addMoney(MegaLongFormula + getContrabandValue(ent))
 		
 		return true
 	end
@@ -657,20 +737,36 @@ function SWEP:PrimaryAttack()
 			if checkOwner(ent, self.Owner) then
 				DarkRP.notify(self:GetOwner(), 1, 4, "You tried, but you own this entity!")
 			else
-				if getValue(ent, self.Owner) then -- For entities with no set values
+				local aliveTime = math.max(CurTime() - ent:GetCreationTime(), 0)
+				local timeBonus = getTimeAliveBonus(ent)
+				local confiscationValue = getContrabandValue(ent)
+
+				ent.ConfiscationAliveTime = aliveTime
+				ent.ConfiscationTimeBonus = timeBonus
+				ent.ConfiscationValue = confiscationValue
+
+				if getValue(ent, self.Owner) then -- For entities with custom values
 					ent:Remove()
 				else
-					DarkRP.notify(self:GetOwner(), 1, 4, "You received " .. tostring(DarkRP.formatMoney(value)) .. " for destroying this illegal entity.")
-					
+					notifyConfiscation(
+						self:GetOwner(),
+						confiscationValue,
+						timeBonus,
+						aliveTime,
+						nil,
+						nil,
+						"destroying this illegal entity"
+					)
+
+					self:GetOwner():addMoney(confiscationValue)
 					ent:Remove()
-					self:GetOwner():addMoney(value)
 				end
 			end
 		end
     end
 end
 
-local ConfiscationBatonVersion = 3.0
+local ConfiscationBatonVersion = 3.1
 
 -- recently added console command, really only for the developer/powerusers
 -- shamelessly ported from my nightstick addon lmao
