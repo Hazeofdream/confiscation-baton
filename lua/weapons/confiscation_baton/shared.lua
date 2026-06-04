@@ -21,101 +21,124 @@ local contraband = {
 		-- 3) We dont want to make the time scale too harshly towards the end or it encourages police to wait intentionally, and encouraging non-interaction is detrimental to roleplay.
 		["time_bonus_interval"] = 20,
 		["time_bonus_amount"] = 1800
-	},
+	}
+}
 
-	-- Default
-	["money_printer"] = 1000,
-	["gunlab"] = 200,
-	
-	-- Zero's Weedfarm aka Zero's GrowOP
-	["zwf_doobytable"] = 4000,
-	["zwf_mixer"] = 4000,
-	["zwf_muffinmix"] = 350,
-	["zwf_oven"] = 4000,
-	["zwf_generator"] = 4000,
-	["zwf_fuel"] = 1000,
-	["zwf_lamp"] = 2500,
-	["zwf_ventilator"] = 2500,
-	["zwf_outlet"] = 250,
-	["zwf_pot"] = 250,
-	["zwf_pot_hydro"] = 400,
-	["zwf_soil"] = 250,
-	["zwf_watertank"] = 2500,
-	["zwf_drystation"] = 2500,
-	["zwf_packingstation"] = 2500,
-	["zwf_autopacker"] = 7500,
-	["zwf_splice_lab"] = 4000,
-	["zwf_seed_bank"] = 1000,
-	["zwf_seed"] = 2500,
-	["zwf_nutrition"] = 2000,
-	["zwf_weedstick"] = 1000,
-	["zwf_muffin"] = 1000,
-	["zwf_bong01_ent"] = 1000,
-	["zwf_bong02_ent"] = 1000,
-	["zwf_bong03_ent"] = 1000,
-	["zwf_seed_bank"] = 1000,
-	["zwf_jar"] = 2500,
-	
+-- Only add items that actually exist on the server
+function loadContraband()
+	local loadedAddons = {}
+
+	-- Zero's Weedfarm
+	if scripted_ents.GetStored("zwf_doobytable") then
+		contraband["zwf_doobytable"] = 4000
+		contraband["zwf_mixer"] = 4000
+		contraband["zwf_muffinmix"] = 350
+		contraband["zwf_oven"] = 4000
+		contraband["zwf_generator"] = 4000
+		contraband["zwf_fuel"] = 1000
+		contraband["zwf_lamp"] = 2500
+		contraband["zwf_ventilator"] = 2500
+		contraband["zwf_outlet"] = 250
+		contraband["zwf_pot"] = 250
+		contraband["zwf_pot_hydro"] = 400
+		contraband["zwf_soil"] = 250
+		contraband["zwf_watertank"] = 2500
+		contraband["zwf_drystation"] = 2500
+		contraband["zwf_packingstation"] = 2500
+		contraband["zwf_autopacker"] = 7500
+		contraband["zwf_splice_lab"] = 4000
+		contraband["zwf_seed_bank"] = 1000
+		contraband["zwf_seed"] = 2500
+		contraband["zwf_nutrition"] = 2000
+		contraband["zwf_weedstick"] = 1000
+		contraband["zwf_muffin"] = 1000
+		contraband["zwf_bong01_ent"] = 1000
+		contraband["zwf_bong02_ent"] = 1000
+		contraband["zwf_bong03_ent"] = 1000
+		contraband["zwf_jar"] = 2500
+		contraband["zwf_palette"] = 2500
+		contraband["zwf_weedblock"] = 1000
+
+		table.insert(loadedAddons, "Zero's Weedfarm")
+	end
+
 	-- Zero's GrowOP 2
-	["zgo2_lamp"] = 0,
-	["zgo2_tent"] = 0,
-	["zgo2_pot"] = 0,
-	["zgo2_rack"] = 0,
-	["zgo2_backmix"] = 0,
-	["zgo2_doobytable"] = 1000,
-	["zgo2_mixer"] = 1000,
-	["zgo2_oven"] = 1000,
-	["zgo2_soil"] = 200,
-	["zgo2_battery"] = 1000,
-	["zgo2_bulb"] = 1000,
-	["zgo2_seedlibary"] = 1000,
-	["zgo2_seed"] = 1000,
-	["zgo2_watertank_small"] = 3000,
-	["zgo2_watertank"] = 4000,
-	["zgo2_pump"] = 3000,
-	["zgo2_splicer"] = 1000,
-	["zgo2_packer"] = 4000,
-	["zgo2_dryline"] = 1500,
-	["zgo2_weedblock"] = 20000,
-	["zgo2_logbook"] = 1000,
-	["zgo2_crate"] = 1000,
-	["zgo2_motor"] = 1000,
-	
-	-- Zeros' Meth Lab 2
-	["zmlab2_tent"] = 750,
-	["zmlab2_equipment"] = 750,
-	["zmlab2_item_autobreaker"] = 4000,
-	["zmlab2_item_acid"] = 1000,
-	["zmlab2_item_aluminium"] = 1000,
-	["zmlab2_item_lox"] = 1000,
-	["zmlab2_item_methylamine"] = 1000,
-	["zmlab2_machine_filler"] = 1000,
-	["zmlab2_machine_filter"] = 1000,
-	["zmlab2_machine_frezzer"] = 1000,
-	["zmlab2_machine_furnace"] = 1000,
-	["zmlab2_machine_mixer"] = 1000,
-	["zmlab2_machine_ventilation"] = 1000,
-	["zmlab2_storage"] = 1000,
-	["zmlab2_table"] = 1000,
+	if scripted_ents.GetStored("zgo2_lamp") then
+		contraband["zgo2_lamp"] = 0
+		contraband["zgo2_tent"] = 0
+		contraband["zgo2_pot"] = 0
+		contraband["zgo2_rack"] = 0
+		contraband["zgo2_backmix"] = 0
+		contraband["zgo2_doobytable"] = 1000
+		contraband["zgo2_mixer"] = 1000
+		contraband["zgo2_oven"] = 1000
+		contraband["zgo2_soil"] = 200
+		contraband["zgo2_battery"] = 1000
+		contraband["zgo2_bulb"] = 1000
+		contraband["zgo2_seedlibary"] = 1000
+		contraband["zgo2_seed"] = 1000
+		contraband["zgo2_watertank_small"] = 3000
+		contraband["zgo2_watertank"] = 4000
+		contraband["zgo2_pump"] = 3000
+		contraband["zgo2_splicer"] = 1000
+		contraband["zgo2_packer"] = 4000
+		contraband["zgo2_dryline"] = 1500
+		contraband["zgo2_weedblock"] = 20000
+		contraband["zgo2_logbook"] = 1000
+		contraband["zgo2_crate"] = 1000
+		contraband["zgo2_motor"] = 1000
+		contraband["zgo2_generator"] = 4000
 
-	SodiumLamps = {
+		contraband["zgo2_jarcrate"] = 50
+		contraband["zgo2_weedbranch"] = 500
+		contraband["zgo2_jar"] = 500
+		contraband["zgo2_baggy"] = 250
+		contraband["zgo2_palette"] = 50
+		contraband["zgo2_clipper"] = 5000
+
+		table.insert(loadedAddons, "Zero's GrowOP 2")
+	end
+
+	-- Zero's Meth Lab 2
+	if scripted_ents.GetStored("zmlab2_tent") then
+		contraband["zmlab2_tent"] = 0
+		contraband["zmlab2_equipment"] = 750
+		contraband["zmlab2_item_autobreaker"] = 4000
+		contraband["zmlab2_item_acid"] = 1000
+		contraband["zmlab2_item_aluminium"] = 1000
+		contraband["zmlab2_item_lox"] = 1000
+		contraband["zmlab2_item_methylamine"] = 1000
+		contraband["zmlab2_machine_filler"] = 1000
+		contraband["zmlab2_machine_filter"] = 1000
+		contraband["zmlab2_machine_frezzer"] = 1000
+		contraband["zmlab2_machine_furnace"] = 1000
+		contraband["zmlab2_machine_mixer"] = 1000
+		contraband["zmlab2_machine_ventilation"] = 1000
+		contraband["zmlab2_storage"] = 1000
+		contraband["zmlab2_table"] = 1000
+
+		contraband["zmlab2_item_meth"] = 250
+		contraband["zmlab2_item_crate"] = 500
+		contraband["zmlab2_item_palette"] = 1000
+
+		contraband["SodiumLamps"] = {
 			["01"] = 1000,
 			["02"] = 2000,
 			["03"] = 4000
-	},
+		}
 
-	LEDLamps = {
+		contraband["LEDLamps"] = {
 			["01"] = 2000,
 			["02"] = 4000,
 			["03"] = 6000
-	},
+		}
 
-	Generators = {
+		contraband["Generators"] = {
 			["01"] = 2000,
 			[".m"] = 4000
-	},
+		}
 
-	Pots = {
+		contraband["Pots"] = {
 			[".m"] = 1000,
 			["04"] = 500,
 			["01"] = 1500,
@@ -123,80 +146,128 @@ local contraband = {
 			["03"] = 1500,
 			["05"] = 1000,
 			["06"] = 500
-	},
+		}
 
-	Mixes = {
+		contraband["Mixes"] = {
 			["muffin"] = 500,
 			["brownie"] = 500,
 			["patty"] = 500,
 			["cookie"] = 500,
 			["cinnamon"] = 500,
 			["donut"] = 500
-	},
+		}
 
-	Tents = {
-			["01"] = 2000,
-			["02"] = 4000
-	},
-	
+		contraband["Tents"] = {
+			["01"] = 4000,
+			["02"] = 2000,
+			["03"] = 14000,
+			["04"] = 10000,
+			["05"] = 10000
+		}
+
+		table.insert(loadedAddons, "Zero's Meth Lab 2")
+	end
+
 	-- Zero's Yeastbeast aka Moonshine
-	["zyb_constructionkit_condenser"] = 2500,
-	["zyb_constructionkit_cooler"] = 2500,
-	["zyb_fermbarrel"] = 500,
-	["zyb_yeastgrinder"] = 2000,
-	["zyb_jarcrate"] = 200,
-	["zyb_jarpack"] = 200,
-	["zyb_paperbag"] = 100,
-	["zyb_sugar"] = 100,
-	["zyb_water"] = 100,
-	["zyb_fuel"] = 50,
-	["zyb_yeast"] = 100,
-	["zyb_distillery_cooler"] = 4500,
-	["zyb_distillery_condenser"] = 4500,
-	
-	-- Zeros' CrackerMaker
-	["zcm_blackpowder"] = 2000,
-	["zcm_crackermachine"] = 5000,
-	["zcm_paperroll"] = 2000,
-	["zcm_firecracker"] = 1500,
-	
-	-- sPrinters
-	["sprinter_tier_1"] = 5000,
-	["sprinter_tier_2"] = 6000,
-	["sprinter_tier_3"] = 7000,
-	["sprinter_tier_4"] = 9000,
-	
-	-- Cocaine Factory
-	["cocaine_baking_soda"] = 50,
-	["cocaine_water"] = 75,
-	["cocaine_box"] = 100,
-	["cocaine_bucket"] = 75,
-	["cocaine_extractor"] = 1750,
-	["cocaine_drying_rack"] = 1500,
-	["cocaine_gas"] = 350,
-	["cocaine_cooking_plate"] = 250,
-	["cocaine_leaves"] = 50,
-	["cocaine_stove"] = 1500,
-	["cocaine_pack"] = 2500,
+	if scripted_ents.GetStored("zyb_distillery") then
+		contraband["zyb_constructionkit_condenser"] = 2500
+		contraband["zyb_constructionkit_cooler"] = 2500
+		contraband["zyb_fermbarrel"] = 500
+		contraband["zyb_yeastgrinder"] = 2000
+		contraband["zyb_jarcrate"] = 200
+		contraband["zyb_jarpack"] = 200
+		contraband["zyb_paperbag"] = 100
+		contraband["zyb_sugar"] = 100
+		contraband["zyb_water"] = 100
+		contraband["zyb_fuel"] = 50
+		contraband["zyb_yeast"] = 100
+		contraband["zyb_distillery"] = 1000
+		contraband["zyb_distillery_cooler"] = 4500
+		contraband["zyb_distillery_condenser"] = 4500
 
-	-- Dynamic values
-	["zwf_palette"] = 2500,
-	["zwf_weedblock"] = 1000,
-	["zwf_seed"] = 1000,
-	["zyb_distillery"] = 5000,
-	["sprinter_rack"] = 25000,
-	["zmlab2_item_meth"] = 250,
-	["zmlab2_item_crate"] = 500,
-	["zmlab2_item_palette"] = 1000,
-	["zyb_jar"] = 50,
-	["zgo2_jarcrate"] = 50,
-	["zgo2_weedbranch"] = 500,
-	["zgo2_jar"] = 500,
-	["zgo2_baggy"] = 250,
-	["zgo2_palette"] = 50,
-	["zgo2_clipper"] = 5000,
-	["zcm_box"] = 200
-}
+		table.insert(loadedAddons, "Zero's Moonshine")
+	end
+
+	-- Zero's CrackerMaker
+	if scripted_ents.GetStored("zcm_crackermachine") then
+		contraband["zcm_blackpowder"] = 2000
+		contraband["zcm_crackermachine"] = 5000
+		contraband["zcm_paperroll"] = 2000
+		contraband["zcm_firecracker"] = 1500
+		contraband["zcm_box"] = 200
+
+		table.insert(loadedAddons, "Zero's CrackerMaker")
+	end
+
+	-- sPrinters
+	if scripted_ents.GetStored("sprinter_tier_1") then
+		contraband["sprinter_tier_1"] = 5000
+		contraband["sprinter_tier_2"] = 6000
+		contraband["sprinter_tier_3"] = 7000
+		contraband["sprinter_tier_4"] = 9000
+		contraband["sprinter_rack"] = 25000
+
+		table.insert(loadedAddons, "sPrinters")
+	end
+
+	-- Cocaine Factory
+	if scripted_ents.GetStored("cocaine_extractor") then
+		contraband["cocaine_baking_soda"] = 50
+		contraband["cocaine_water"] = 75
+		contraband["cocaine_box"] = 100
+		contraband["cocaine_bucket"] = 75
+		contraband["cocaine_extractor"] = 1750
+		contraband["cocaine_drying_rack"] = 1500
+		contraband["cocaine_gas"] = 350
+		contraband["cocaine_cooking_plate"] = 250
+		contraband["cocaine_leaves"] = 50
+		contraband["cocaine_stove"] = 1500
+		contraband["cocaine_pack"] = 2500
+
+		table.insert(loadedAddons, "Cocaine Factory")
+	end
+
+	-- Bricks Gang Printer
+	if scripted_ents.GetStored("bricks_server_gangprinter") then
+		contraband["bricks_server_gangprinter"] = 40000
+	
+		table.insert(loadedAddons, "Brick's Gang Printer")
+	end
+
+	-- Bitminer's
+	-- It's important to note that this can only be confiscated with a law supporting it.
+	if scripted_ents.GetStored("ch_bitminer_shelf") then
+		contraband["ch_bitminer_shelf"] = 10000
+		contraband["ch_bitminer_upgrade_cooling1"] = 6000
+		contraband["ch_bitminer_upgrade_cooling2"] = 7000
+		contraband["ch_bitminer_upgrade_cooling3"] = 8000
+		contraband["ch_bitminer_power_generator"] = 3000
+		contraband["ch_bitminer_power_generator_fuel"] = 1000
+		contraband["ch_bitminer_upgrade_miner"] = 700
+		contraband["ch_bitminer_power_cable"] = 300
+		contraband["ch_bitminer_power_combiner"] = 2000
+		contraband["ch_bitminer_power_rtg"] = 9000
+		contraband["ch_bitminer_power_solar"] = 6000
+		contraband["ch_bitminer_upgrade_ups"] = 1000
+		contraband["ch_bitminer_upgrade_rgb"] = 2000
+	end
+
+	-- Exhibition
+	-- Not a server available yet, but will be soon :)
+	if scripted_ents.GetStored("exhib_printer") then
+		contraband["exhib_printer"] = 15000
+	end
+
+	if CLIENT then return end
+
+	print("[Confiscation Baton] Loaded contraband support for " .. #loadedAddons .. " addons:")
+
+	for _, addonName in ipairs(loadedAddons) do
+		print("  - " .. addonName)
+	end
+end
+
+hook.Add("PostGamemodeLoaded", "ConfiscationBaton_LoadContraband", loadContraband)
 
 if CLIENT then
     SWEP.Slot = 1
@@ -204,7 +275,6 @@ if CLIENT then
 end
 
 DEFINE_BASECLASS("stick_base")
-
 
 SWEP.Instructions = "Left click to seize contraband."
 SWEP.Purpose = "To keep the streets clean, or piss off criminals."
@@ -232,30 +302,26 @@ function SWEP:Initialize()
     }
 end
 
+
 -- The darkrp function Getowning_ent does not work on certain things like zero's weed, so we filter that.
 
 local function checkOwner(ent, owner)
-	-- NOTICE HOW THIS IS ALL ZERO'S SHIT????
-	local strings = {
-		"zwf_",
-		"zmlab2_",
-		"zyb_",
-		"zgo2_",
-		"zcm_"
-	}
+	local success, result = pcall(function()
+		return owner == ent:Getowning_ent()
+	end)
 
-	for _, comp in pairs(strings) do
-		if string.StartsWith(ent:GetClass(), comp) then return end
+	if success and result then
+		return true
 	end
 
-	if owner == ent:Getowning_ent() then return true end
+	return
 end
 
 -- This is all the calculations for how much a user is awarded per aliveTime of the entity
 -- Longer time alive = more money, Frequency and amount per interval is determined by config
 local function getTimeAliveBonus(ent)
-	local interval = contraband["Values"]["time_bonus_interval"] or 120
-	local value = contraband["Values"]["time_bonus_amount"] or 250
+	local interval = contraband["Values"]["time_bonus_interval"] or 20
+	local value = contraband["Values"]["time_bonus_amount"] or 1800
 
 	if interval <= 0 or value <= 0 then return 0 end
 	if not IsValid(ent) or not ent.GetCreationTime then return 0 end
@@ -379,7 +445,7 @@ local function getValue(ent, owner)
 			owner:addMoney((ent:GetMethAmount() + ent:GetMethQuality()) + getContrabandValue(ent))
 		
 			return true
-		end		
+		end
 		
 		if string.find(ent:GetClass(), "zmlab2_item_crate") then
 			if ent:GetMethAmount() == 0 and ent:GetMethQuality() <= 1 then return false-- zero counts an empty crate as 1 in meth quality lmao
@@ -390,7 +456,7 @@ local function getValue(ent, owner)
 			owner:addMoney((ent:GetMethAmount() + ent:GetMethQuality()) + getContrabandValue(ent))
 		
 			return true
-		end		
+		end
 		
 		if string.find(ent:GetClass(), "zmlab2_item_palette") then
 			local money = 0
@@ -401,10 +467,23 @@ local function getValue(ent, owner)
 		
 			if money == 0 then return false
 			else 
-				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, money, "meth")			end
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, money, "meth")
+			end
 
 			owner:addMoney(money + getContrabandValue(ent))
 		
+			return true
+		end
+
+		if string.find(ent:GetClass(), "zmlab2_tent") then
+			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_methlab/zmlab2_tent")[2]
+			local mdltrim = string.Split(pathtrim, ".mdl")[1]
+			local getType = string.sub(mdltrim, 1, 2)
+
+			notifyConfiscation(owner, contraband["Tents"][getType], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
+
+			owner:addMoney(contraband["Tents"][getType] + getContrabandValue(ent))
+
 			return true
 		end
 	end
@@ -449,6 +528,21 @@ local function getValue(ent, owner)
 		end
 	end
 
+	-- Brick's Gang Printer
+	if string.find(ent:GetClass(), "bricks_server_gangprinter") then 
+		local money = ent:GetHolding() * contraband["Values"]["printer_multiplier"]
+		
+		if money == 0 then
+			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
+		else
+			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, money, "printed money")
+		end
+
+		owner:addMoney(money + getContrabandValue(ent))
+	
+		return true
+	end
+
 	-- Zero's Yeastbeast
 	if string.sub(ent:GetClass(), 1, 4) == "zyb_" then
 		if string.find(ent:GetClass(), "zyb_jar") and not string.find(ent:GetClass(), "pack") and not string.find(ent:GetClass(), "crate") then -- SCREW YOU ZERO, STOP HAVING SIMILARLY NAMED ITEMS
@@ -462,7 +556,7 @@ local function getValue(ent, owner)
 		end	
 		
 		if string.find(ent:GetClass(), "zyb_jarcrate") then
-			local MegaLongFormula = (zyb.config.Jar.MoonshineAmount * ent:GetJarCount()) * confiscation_config["moonshine_multiplier"]
+			local MegaLongFormula = (zyb.config.Jar.MoonshineAmount * ent:GetJarCount()) * contraband["Values"]["moonshine_multiplier"]
 
 			if ent:GetJarCount() == 0 then return false
 			else 
@@ -476,19 +570,19 @@ local function getValue(ent, owner)
 		if string.find(ent:GetClass(), "zyb_distillery") then
 			local totalvalue = 0
 			if IsValid(ent:GetCooler()) then
-				totalvalue = totalvalue + contraband["zyb_distillery_cooler"]
+				totalvalue = totalvalue + getContrabandValue(ent:GetCooler())
 				-- remove attached cooler after value calculation
 				ent:GetCooler():Remove()
 			end			
 			
 			if IsValid(ent:GetCondenser()) then
-				totalvalue = totalvalue + contraband["zyb_distillery_condenser"]
+				totalvalue = totalvalue + getContrabandValue(ent:GetCondenser())
 				-- remove attached condenser after value calculation
 				ent:GetCondenser():Remove()
 			end
 
 			if totalvalue then
-				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, totalvalue, "attached equipment")	
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, totalvalue, "attached equipment", "equipment")	
 			else
 				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
 			end
@@ -503,20 +597,21 @@ local function getValue(ent, owner)
 	
 	if string.sub(ent:GetClass(), 1, 5) == "zgo2_" then
 		if string.find(ent:GetClass(), "zgo2_weedbranch") then
-			notifyConfiscation(owner, zgo2.Plant.GetWeedAmount(ent:GetPlantID()), zgo2.Plant.GetTotalMoney(ent:GetPlantID()), "weed") 
+			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, zgo2.Plant.GetTotalMoney(ent:GetPlantID()), "weed") 
 
-			owner:addMoney(zgo2.Plant.GetTotalMoney(ent:GetPlantID()))
+			owner:addMoney(zgo2.Plant.GetTotalMoney(ent:GetPlantID()) + getContrabandValue(ent))
 
 			return true
 		end		
 		
 		if string.find(ent:GetClass(), "zgo2_clipper") then
+			local value = 0
 			if ent:GetHasMotor() then 
-				local value = getContrabandValue(ent) + contraband["zgo2_motor"]
+				value = getContrabandValue(ent) + contraband["zgo2_motor"]
 				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, contraband["zgo2_motor"], "parts", "equipment") 
 			else
 				value = getContrabandValue(ent)
-				notifyConfiscation(owner, value, nil, nil, "equipment") 
+				notifyConfiscation(owner, value, ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
 			end
 
 			owner:addMoney(value)
@@ -533,17 +628,24 @@ local function getValue(ent, owner)
 		end		
 		
 		if string.find(ent:GetClass(), "zgo2_weedblock")  then	
-			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
-			owner:addMoney(getContrabandValue(ent))
+			local value = zgo2.config.Packer.Capacity * zgo2.Plant.GetSellValue(ent:GetWeedID())
+
+			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, value, "weed stacks") 
+			owner:addMoney(value + getContrabandValue(ent))
 
 			return true
 		end		
 		
 		if string.find(ent:GetClass(), "zgo2_palette") then
-			money = contraband["zgo2_weedblock"] * #ent.WeedList
-			
+			local money = 0
+
+			-- Loop through all attached weed
+			for _, weedID in ipairs(ent.WeedList or {}) do
+				money = money + (zgo2.config.Packer.Capacity * zgo2.Plant.GetSellValue(weedID))
+			end
+
 			if #ent.WeedList > 0 then
-				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, contraband["zgo2_weedblock"] * #ent.WeedList, "weed blocks") 
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, money, "weed blocks") 
 			else
 				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
 			end
@@ -583,9 +685,9 @@ local function getValue(ent, owner)
 			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
 			local getType = string.sub(pathtrim, 17, 18)
 
-			notifyConfiscation(owner, contraband["SodiumLamps"][getType], nil, nil, "operation equipment") 
+			notifyConfiscation(owner, contraband["SodiumLamps"][getType], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
 
-			owner:addMoney(contraband["SodiumLamps"][getType])
+			owner:addMoney(getContrabandValue(ent))
 
 			return true
 		end	
@@ -594,25 +696,25 @@ local function getValue(ent, owner)
 			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
 			local getType = string.sub(pathtrim, 15, 16)
 
-			notifyConfiscation(owner, contraband["LEDLamps"][getType], nil, nil, "operation equipment") 
+			notifyConfiscation(owner, contraband["LEDLamps"][getType], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
 
-			owner:addMoney(contraband["LEDLamps"][getType])
+			owner:addMoney(getContrabandValue(ent))
 
 			return true
 		end	
 		
 		if string.find(ent:GetClass(), "zgo2_lamp") and string.find(ent:GetModel(), "led") and string.find(ent:GetModel(), "tent") then
-			notifyConfiscation(owner, contraband["LEDLamps"]["01"], nil, nil, "operation equipment") 
+			notifyConfiscation(owner, contraband["LEDLamps"]["01"], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
 
-			owner:addMoney(contraband["LEDLamps"]["01"])
+			owner:addMoney(getContrabandValue(ent))
 
 			return true
 		end	
 		
 		if string.find(ent:GetClass(), "zgo2_lamp") and string.find(ent:GetModel(), "sodium") and string.find(ent:GetModel(), "tent") then
-			notifyConfiscation(owner, contraband["SodiumLamps"]["01"], nil, nil, "operation equipment") 
+			notifyConfiscation(owner, contraband["SodiumLamps"]["01"], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
 
-			owner:addMoney(contraband["SodiumLamps"]["01"])
+			owner:addMoney(getContrabandValue(ent))
 
 			return true
 		end
@@ -621,9 +723,9 @@ local function getValue(ent, owner)
 			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
 			local getType = string.sub(pathtrim, 15, 16)
 			
-			notifyConfiscation(owner, contraband["Generators"][getType], nil, nil, "operation equipment") 
+			notifyConfiscation(owner, contraband["Generators"][getType], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
 
-			owner:addMoney(contraband["Generators"][getType])
+			owner:addMoney(getContrabandValue(ent))
 
 			return true
 		end	
@@ -633,9 +735,9 @@ local function getValue(ent, owner)
 			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
 			local getType = string.sub(pathtrim, 9, 10)
 			
-			notifyConfiscation(owner, contraband["Pots"][getType], nil, nil, "growing equipment") 
+			notifyConfiscation(owner, contraband["Pots"][getType], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
 
-			owner:addMoney(contraband["Pots"][getType])
+			owner:addMoney(getContrabandValue(ent))
 
 			return true
 		end		
@@ -645,9 +747,9 @@ local function getValue(ent, owner)
 			local mdltrim = string.Split(pathtrim, ".mdl")[1]
 			local getType = string.sub(mdltrim, 14, 25)
 			
-			notifyConfiscation(owner, contraband["Mixes"][getType], nil, nil, "ingredients") 
+			notifyConfiscation(owner, contraband["Mixes"][getType], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
 
-			owner:addMoney(contraband["Mixes"][getType])
+			owner:addMoney(getContrabandValue(ent))
 
 			return true
 		end	
@@ -656,9 +758,9 @@ local function getValue(ent, owner)
 			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
 			local getType = string.sub(pathtrim, 10, 11)
 			
-			notifyConfiscation(owner, contraband["Pots"][getType], nil, nil, "holding equipment") 
+			notifyConfiscation(owner, contraband["Pots"][getType], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
 
-			owner:addMoney(contraband["Pots"][getType])
+			owner:addMoney(getContrabandValue(ent))
 
 			return true
 		end	
@@ -673,20 +775,20 @@ local function getValue(ent, owner)
 			for _, child in pairs(ent:GetChildren()) do
 				if child:GetClass() == "zgo2_lamp" then 
 					if string.find(child:GetModel(), "sodium") then
-						stored = stored + contraband["SodiumLamps"]["01"]
+						stored = stored + getContrabandValue(child)
 					end				
 					if string.find(child:GetModel(), "led") then
-						stored = stored + contraband["LEDLamps"]["01"]
+						stored = stored + getContrabandValue(child)
 					end
 				end
 			end
 			
 			if stored == 0 then
-				notifyConfiscation(owner, contraband["Tents"][getType], nil, nil, "the operating tent") 
-				owner:addMoney(contraband["Tents"][getType])
+				notifyConfiscation(owner, contraband["Tents"][getType], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, nil, "the operating tent") 
+				owner:addMoney(getContrabandValue(ent))
 			else
 				notifyConfiscation(owner, contraband["Tents"][getType], stored, "attached equipment", "the operating tent") 
-				owner:addMoney(contraband["Tents"][getType] + stored)
+				owner:addMoney(getContrabandValue(ent) + stored)
 			end
 
 			return true
@@ -697,13 +799,24 @@ local function getValue(ent, owner)
 	if string.find(ent:GetClass(), "zcm_box") then
 		local MegaLongFormula = contraband["zcm_firecracker"] * ent:GetFireworkCount()
 
-		if ent:GetFireworkCount() == 0 then return false
-		else 
+		if ent:GetFireworkCount() > 0 then
 			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, MegaLongFormula, "contained jar values") 
 		end
 		owner:addMoney(MegaLongFormula + getContrabandValue(ent))
 		
 		return true
+	end
+
+	-- Crap-Head's Bitminers 2
+	if string.sub(ent:GetClass(), 1, 11) == "ch_bitminer" then
+		if string.find(ent:GetClass(), "ch_bitminer_shelf") then
+			local money = math.Round(ent:GetBitcoinsMined() * CH_Bitminers.Config.BitcoinRate * 2)
+
+			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, money, "bitcoin value", "equipment")
+			owner:addMoney(money + getContrabandValue(ent))
+			
+			return true
+		end
 	end
 end
 
@@ -766,7 +879,7 @@ function SWEP:PrimaryAttack()
     end
 end
 
-local ConfiscationBatonVersion = 3.1
+local ConfiscationBatonVersion = 3.3
 
 -- recently added console command, really only for the developer/powerusers
 -- shamelessly ported from my nightstick addon lmao
