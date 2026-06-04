@@ -267,7 +267,7 @@ function loadContraband()
 	end
 end
 
-hook.Add("PostGamemodeLoaded", "ConfiscationBaton_LoadContraband", loadContraband)
+hook.Add("InitPostEntity", "ConfiscationBaton_LoadContraband", loadContraband)
 
 if CLIENT then
     SWEP.Slot = 1
