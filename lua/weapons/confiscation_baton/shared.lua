@@ -5,8 +5,13 @@ AddCSLuaFile()
 -- contact https:/steamcommunity.com/id/Haze_of_dream for issues if it's an emergency
 -- otherwise PLEASE use https://steamcommunity.com/workshop/filedetails/discussion/2981130069/3834298194196734223/
 
-local contraband = {
-	Values  = {
+local contraband = contraband or {}
+
+-- Only add items that actually exist on the server
+function loadContraband()
+	local loadedAddons = {}
+
+	contraband["Values"] = {
 		-- controls how much the actual printer values get multiplied
 		-- we multiply to encourage hitting hard targets, only giving the base amount of the printer would discorage pd raids as it would be more profitable to print yourself.
 		["printer_multiplier"] = 5,
@@ -22,11 +27,6 @@ local contraband = {
 		["time_bonus_interval"] = 20,
 		["time_bonus_amount"] = 1800
 	}
-}
-
--- Only add items that actually exist on the server
-function loadContraband()
-	local loadedAddons = {}
 
 	-- Zero's Weedfarm
 	if scripted_ents.GetStored("zwf_doobytable") then
@@ -102,6 +102,7 @@ function loadContraband()
 	-- Zero's Meth Lab 2
 	if scripted_ents.GetStored("zmlab2_tent") then
 		contraband["zmlab2_tent"] = 0
+		contraband["zmlab2_item_frezzertray"] = 200
 		contraband["zmlab2_equipment"] = 750
 		contraband["zmlab2_item_autobreaker"] = 4000
 		contraband["zmlab2_item_acid"] = 1000
@@ -446,6 +447,26 @@ local function getValue(ent, owner)
 		
 			return true
 		end
+
+		if string.find(ent:GetClass(), "zmlab2_machine_frezzer") then 
+			local trayvalue = 0
+
+			for _, child in pairs(ent:GetChildren()) do
+				if child:GetClass() == "zmlab2_item_frezzertray" then 
+					trayvalue = trayvalue + getContrabandValue(child)
+				end
+			end
+
+			if trayvalue > 0 then
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, trayvalue, "frezzer trays", "meth")
+			else
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, "meth")
+			end
+
+			owner:addMoney(trayvalue + getContrabandValue(ent))
+		
+			return true
+		end
 		
 		if string.find(ent:GetClass(), "zmlab2_item_crate") then
 			if ent:GetMethAmount() == 0 and ent:GetMethQuality() <= 1 then return false-- zero counts an empty crate as 1 in meth quality lmao
@@ -465,8 +486,7 @@ local function getValue(ent, owner)
 				money = money + zmlab2.Meth.GetValue(v.t,v.a,v.q)
 			end
 		
-			if money == 0 then return false
-			else 
+			if money > 0 then
 				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, money, "meth")
 			end
 
@@ -879,7 +899,7 @@ function SWEP:PrimaryAttack()
     end
 end
 
-local ConfiscationBatonVersion = 3.3
+local ConfiscationBatonVersion = 3.4
 
 -- recently added console command, really only for the developer/powerusers
 -- shamelessly ported from my nightstick addon lmao
