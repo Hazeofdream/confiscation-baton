@@ -563,6 +563,22 @@ local function getValue(ent, owner)
 		return true
 	end
 
+	-- Exhibition's Printers
+	if string.find(ent:GetClass(), "exhib_printer") then 
+		local money = ent:GetMoney() * contraband["Values"]["printer_multiplier"]
+		local printercount = math.max(1, ent:GetSlots())
+		
+		if money == 0 then
+			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
+		else
+			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, money, "printed money")
+		end
+
+		owner:addMoney(money + (getContrabandValue(ent) * printercount))
+	
+		return true
+	end
+
 	-- Zero's Yeastbeast
 	if string.sub(ent:GetClass(), 1, 4) == "zyb_" then
 		if string.find(ent:GetClass(), "zyb_jar") and not string.find(ent:GetClass(), "pack") and not string.find(ent:GetClass(), "crate") then -- SCREW YOU ZERO, STOP HAVING SIMILARLY NAMED ITEMS
@@ -845,9 +861,6 @@ function SWEP:PrimaryAttack()
     self:SetNextSecondaryFire(self:GetNextPrimaryFire())
 	
 	if CLIENT then return end
-
-	-- Make noise
-	self:EmitSound(self.FleshHit[math.random(#self.Hit)])
 	
 	-- Do entity check
     local batonTrace = {
@@ -896,10 +909,16 @@ function SWEP:PrimaryAttack()
 				end
 			end
 		end
-    end
+
+		-- Make noise
+		self:EmitSound(self.Hit[math.random(#self.Hit)])
+    else
+		-- Make noise
+		self:EmitSound(self.FleshHit[math.random(#self.FleshHit)])
+	end
 end
 
-local ConfiscationBatonVersion = 3.4
+local ConfiscationBatonVersion = 3.5
 
 -- recently added console command, really only for the developer/powerusers
 -- shamelessly ported from my nightstick addon lmao
