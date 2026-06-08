@@ -267,7 +267,7 @@ function loadContraband()
 		contraband["zbf_controller"] = 3000
 		contraband["zbf_rack"] = 3000
 
-		table.insert(loadedAddons, "Zero's Botner")
+		table.insert(loadedAddons, "Zero's Botnet")
 	end
 
 	-- Lean Production
