@@ -25,8 +25,11 @@ function loadContraband()
 		-- 2) The longer an entity exist, the more likelihood of the base being extremely tough to crack, so we need to make sure that it's worth the risk of cracking a tough base, and
 		-- 3) We dont want to make the time scale too harshly towards the end or it encourages police to wait intentionally, and encouraging non-interaction is detrimental to roleplay.
 		["time_bonus_interval"] = 20,
-		["time_bonus_amount"] = 1800
+		["time_bonus_amount"] = 2200
 	}
+
+	-- no servers run these but it DOES exist
+	contraband["money_printer"] = 2000
 
 	-- Zero's Weedfarm
 	if scripted_ents.GetStored("zwf_doobytable") then
@@ -280,6 +283,13 @@ function loadContraband()
 		table.insert(loadedAddons, "Lean Production")
 	end
 
+	-- Shenisis
+	if scripted_ents.GetStored("sh_detector_jammer") then
+		contraband["sh_detector_jammer"] = 3000
+
+		table.insert(loadedAddons, "Shenisis' Entities")
+	end
+
 	if CLIENT then return end
 
 	print("[Confiscation Baton] Loaded contraband support for " .. #loadedAddons .. " addons:")
@@ -307,6 +317,8 @@ SWEP.Author = "Haze_of_dream"
 SWEP.Contact = "https://steamcommunity.com/id/Haze_of_dream/"
 SWEP.Spawnable = true
 SWEP.Category = "The Tactician's Kit"
+
+SWEP.Sound = Sound("weapons/stunstick/stunstick_swing1.wav")
 
 SWEP.StickColor = Color(255, 165, 0)
 
@@ -875,11 +887,38 @@ local function getValue(ent, owner)
 			return true
 		end
 	end
+
+	-- Lean Production
+	if string.sub(ent:GetClass(), 1, 5) == "lean_" then
+		if string.find(ent:GetClass(), "lean_crate") or string.find(ent:GetClass(), "lean_smallcrate") then
+			local count = ent:Getholding()
+			local sellprice = 0
+
+			if count >= 1 then
+				local sellprice = lean_updated.sellprice.val * count
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, sellprice, "lean")
+			else
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
+			end
+
+			owner:addMoney(sellprice + getContrabandValue(ent))
+			
+			return true
+		end
+	end
 end
 
 function SWEP:PrimaryAttack()
-    BaseClass.PrimaryAttack(self)
-    self:SetNextSecondaryFire(self:GetNextPrimaryFire())
+    self:SetHoldType("melee")
+    self:SetHoldTypeChangeTime(CurTime() + 0.3)
+
+    self:SetNextPrimaryFire(CurTime() + 0.51)
+
+    local vm = self:GetOwner():GetViewModel()
+    if IsValid(vm) then
+        vm:SendViewModelMatchingSequence(vm:LookupSequence("idle01"))
+        self:SetSeqIdling(true)
+    end
 	
 	if CLIENT then return end
 	
@@ -929,17 +968,17 @@ function SWEP:PrimaryAttack()
 					ent:Remove()
 				end
 			end
-		end
 
-		-- Make noise
-		self:EmitSound(self.Hit[math.random(#self.Hit)])
+			-- Make noise
+			self.Owner:EmitSound(self.FleshHit[math.random(#self.FleshHit)])
+		end
     else
 		-- Make noise
-		self:EmitSound(self.FleshHit[math.random(#self.FleshHit)])
+		self.Owner:EmitSound(self.Hit[math.random(#self.Hit)])
 	end
 end
 
-local ConfiscationBatonVersion = 3.6
+local ConfiscationBatonVersion = 3.7
 
 -- recently added console command, really only for the developer/powerusers
 -- shamelessly ported from my nightstick addon lmao
