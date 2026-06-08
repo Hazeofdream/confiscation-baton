@@ -236,7 +236,6 @@ function loadContraband()
 	end
 
 	-- Bitminer's
-	-- It's important to note that this can only be confiscated with a law supporting it.
 	if scripted_ents.GetStored("ch_bitminer_shelf") then
 		contraband["ch_bitminer_shelf"] = 10000
 		contraband["ch_bitminer_upgrade_cooling1"] = 6000
@@ -251,12 +250,34 @@ function loadContraband()
 		contraband["ch_bitminer_power_solar"] = 6000
 		contraband["ch_bitminer_upgrade_ups"] = 1000
 		contraband["ch_bitminer_upgrade_rgb"] = 2000
+
+		table.insert(loadedAddons, "Crap-Head's Bitminers 2")
 	end
 
 	-- Exhibition
 	-- Not a server available yet, but will be soon :)
 	if scripted_ents.GetStored("exhib_printer") then
 		contraband["exhib_printer"] = 15000
+
+		table.insert(loadedAddons, "Exhibition Printers")
+	end
+
+	-- Zero's Botnet
+	if scripted_ents.GetStored("zbf_controller") then
+		contraband["zbf_controller"] = 3000
+		contraband["zbf_rack"] = 3000
+
+		table.insert(loadedAddons, "Zero's Botner")
+	end
+
+	-- Lean Production
+	if scripted_ents.GetStored("lean_barrel") then
+		contraband["lean_barrel"] = 15000
+		contraband["lean_crate"] = 30000
+		contraband["lean_smallcrate"] = 7500
+		contraband["lean_cup"] = 1500
+
+		table.insert(loadedAddons, "Lean Production")
 	end
 
 	if CLIENT then return end
@@ -918,7 +939,7 @@ function SWEP:PrimaryAttack()
 	end
 end
 
-local ConfiscationBatonVersion = 3.5
+local ConfiscationBatonVersion = 3.6
 
 -- recently added console command, really only for the developer/powerusers
 -- shamelessly ported from my nightstick addon lmao
