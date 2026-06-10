@@ -5,7 +5,7 @@ AddCSLuaFile()
 -- contact https:/steamcommunity.com/id/Haze_of_dream for issues if it's an emergency
 -- otherwise PLEASE use https://steamcommunity.com/workshop/filedetails/discussion/2981130069/3834298194196734223/
 
-local contraband = contraband or {}
+contraband = contraband or {}
 
 -- Only add items that actually exist on the server
 function loadContraband()
