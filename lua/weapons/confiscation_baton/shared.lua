@@ -18,6 +18,8 @@ function loadContraband()
 		
 		-- this looks like alot until you print moonshine's predicted values
 		["moonshine_multiplier"] = 42,
+
+		["botnet_multiplier"] = 5,
 		
 		-- bonus payout added for every x seconds an entity exists
 		-- This is intentionally high because of the following considerations:
@@ -269,6 +271,8 @@ function loadContraband()
 	if scripted_ents.GetStored("zbf_controller") then
 		contraband["zbf_controller"] = 3000
 		contraband["zbf_rack"] = 3000
+	
+		contraband["zbf_bot"] = 0
 
 		table.insert(loadedAddons, "Zero's Botnet")
 	end
@@ -294,7 +298,7 @@ function loadContraband()
 
 	print("[Confiscation Baton] Loaded contraband support for " .. #loadedAddons .. " addons:")
 
-	for _, addonName in ipairs(loadedAddons) do
+	for _, addonName in pairs(loadedAddons) do
 		print("  - " .. addonName)
 	end
 end
@@ -709,7 +713,7 @@ local function getValue(ent, owner)
 			local money = 0
 
 			-- Loop through all attached weed
-			for _, weedID in ipairs(ent.WeedList or {}) do
+			for _, weedID in pairs(ent.WeedList or {}) do
 				money = money + (zgo2.config.Packer.Capacity * zgo2.Plant.GetSellValue(weedID))
 			end
 
@@ -853,10 +857,10 @@ local function getValue(ent, owner)
 			end
 			
 			if stored == 0 then
-				notifyConfiscation(owner, contraband["Tents"][getType], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, nil, "the operating tent") 
+				notifyConfiscation(owner, contraband["Tents"][getType], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
 				owner:addMoney(getContrabandValue(ent))
 			else
-				notifyConfiscation(owner, contraband["Tents"][getType], stored, "attached equipment", "the operating tent") 
+				notifyConfiscation(owner, contraband["Tents"][getType], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, stored, "attached equipment", "the operating tent") 
 				owner:addMoney(getContrabandValue(ent) + stored)
 			end
 
@@ -903,6 +907,63 @@ local function getValue(ent, owner)
 
 			owner:addMoney(sellprice + getContrabandValue(ent))
 			
+			return true
+		end
+	end
+
+	-- Zero's Botnet
+	if string.sub(ent:GetClass(), 1, 4) == "zbf_" then
+		if string.find(ent:GetClass(), "zbf_rack") then
+			local GetPrice = 0
+
+			for _, botnet in pairs(ent:GetChildren()) do
+				if not IsValid(botnet) or botnet:GetClass() ~= "zbf_bot" then continue end
+
+				GetPrice = GetPrice + (zbf.Bot.GetPrice(botnet:GetBotID()) * contraband["Values"]["botnet_multiplier"])
+			end
+
+			if GetPrice > 0 then
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, GetPrice, "botnets", "equipment")
+			else
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
+			end
+
+			owner:addMoney(GetPrice + getContrabandValue(ent))
+
+			return true
+		end
+
+		-- Individual botnets not on a rack
+		if string.find(ent:GetClass(), "zbf_bot") then
+			local GetPrice = 0
+			local parentClass = nil
+
+			local success, result = pcall(function()
+				return ent:GetParent():GetClass()
+			end)
+
+			if success then
+				parentClass = result
+			end
+
+			if parentClass == "zbf_rack" then
+				for _, botnet in pairs(ent:GetParent():GetChildren()) do
+					if not IsValid(botnet) or botnet:GetClass() ~= "zbf_bot" then continue end
+
+					GetPrice = GetPrice + (zbf.Bot.GetPrice(botnet:GetBotID()) * contraband["Values"]["botnet_multiplier"])
+				end
+			else
+				GetPrice = zbf.Bot.GetPrice(ent:GetBotID()) * contraband["Values"]["botnet_multiplier"]
+			end
+
+			if parentClass == "zbf_rack" then
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, GetPrice, "botnets", "equipment")
+			else
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, GetPrice, "botnet value")
+			end
+
+			owner:addMoney(GetPrice + getContrabandValue(ent))
+
 			return true
 		end
 	end
@@ -978,7 +1039,7 @@ function SWEP:PrimaryAttack()
 	end
 end
 
-local ConfiscationBatonVersion = 3.7
+local ConfiscationBatonVersion = 3.8
 
 -- recently added console command, really only for the developer/powerusers
 -- shamelessly ported from my nightstick addon lmao
