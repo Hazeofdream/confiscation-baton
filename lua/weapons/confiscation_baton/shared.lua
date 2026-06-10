@@ -19,7 +19,7 @@ function loadContraband()
 		-- this looks like alot until you print moonshine's predicted values
 		["moonshine_multiplier"] = 42,
 
-		["botnet_multiplier"] = 5,
+		["botnet_multiplier"] = 2,
 		
 		-- bonus payout added for every x seconds an entity exists
 		-- This is intentionally high because of the following considerations:
@@ -1013,7 +1013,7 @@ function SWEP:PrimaryAttack()
 				ent.ConfiscationValue = confiscationValue
 
 				if getValue(ent, self.Owner) then -- For entities with custom values
-					ent:Remove()
+					--ent:Remove()
 				else
 					notifyConfiscation(
 						self:GetOwner(),
@@ -1039,7 +1039,7 @@ function SWEP:PrimaryAttack()
 	end
 end
 
-local ConfiscationBatonVersion = 3.8
+local ConfiscationBatonVersion = 3.81
 
 -- recently added console command, really only for the developer/powerusers
 -- shamelessly ported from my nightstick addon lmao
