@@ -670,9 +670,9 @@ local function getValue(ent, owner)
 	
 	if string.sub(ent:GetClass(), 1, 5) == "zgo2_" then
 		if string.find(ent:GetClass(), "zgo2_weedbranch") then
-			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, zgo2.Plant.GetTotalMoney(ent:GetPlantID()), "weed") 
+			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, zgo2.Plant.GetSellValue(ent:GetPlantID()), "weed") 
 
-			owner:addMoney(zgo2.Plant.GetTotalMoney(ent:GetPlantID()) + getContrabandValue(ent))
+			owner:addMoney(zgo2.Plant.GetSellValue(ent:GetPlantID()) + getContrabandValue(ent))
 
 			return true
 		end		
@@ -693,7 +693,10 @@ local function getValue(ent, owner)
 		end	
 		
 		if string.find(ent:GetClass(), "zgo2_jar")  and not string.find(ent:GetClass(), "crate") then
-			local WeedValue = ent:GetWeedAmount() * ent:GetWeedTHC() -- im using this cause growop 2 is retarded and doesn't have a direct function for checking money (except for when exporting the data, no im not sifting that shit)
+			local weedID = ent:GetWeedID()
+			local weedAmount = ent:GetWeedAmount()
+
+			local WeedValue = zgo2.Plant.GetSellValue(weedID) * weedAmount
 			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, WeedValue, "weed") 
 			owner:addMoney(WeedValue + getContrabandValue(ent))
 
@@ -717,7 +720,7 @@ local function getValue(ent, owner)
 				money = money + (zgo2.config.Packer.Capacity * zgo2.Plant.GetSellValue(weedID))
 			end
 
-			if #ent.WeedList > 0 then
+			if money > 0 then
 				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, money, "weed blocks") 
 			else
 				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
@@ -863,6 +866,27 @@ local function getValue(ent, owner)
 				notifyConfiscation(owner, contraband["Tents"][getType], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, stored, "attached equipment", "the operating tent") 
 				owner:addMoney(getContrabandValue(ent) + stored)
 			end
+
+			return true
+		end
+
+		-- Account for all branches attached to a drying line
+		if string.find(ent:GetClass(), "zgo2_dryline") then
+			local weedvalue = 0
+
+			for _, branch in pairs(ent.WeedBranches) do
+				if not branch.id or not branch.amount then continue end
+
+				weedvalue = weedvalue + (branch.amount * zgo2.Plant.GetSellValue(branch.id))
+			end
+
+			if weedvalue > 0 then
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, weedvalue, "weed branches", "hook") 
+			else
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
+			end
+
+			owner:addMoney(weedvalue + getContrabandValue(ent))
 
 			return true
 		end
@@ -1013,7 +1037,7 @@ function SWEP:PrimaryAttack()
 				ent.ConfiscationValue = confiscationValue
 
 				if getValue(ent, self.Owner) then -- For entities with custom values
-					ent:Remove()
+					--ent:Remove()
 				else
 					notifyConfiscation(
 						self:GetOwner(),
@@ -1039,7 +1063,7 @@ function SWEP:PrimaryAttack()
 	end
 end
 
-local ConfiscationBatonVersion = 3.81
+local ConfiscationBatonVersion = 3.9
 
 -- recently added console command, really only for the developer/powerusers
 -- shamelessly ported from my nightstick addon lmao
