@@ -27,7 +27,7 @@ function loadContraband()
 		-- 2) The longer an entity exist, the more likelihood of the base being extremely tough to crack, so we need to make sure that it's worth the risk of cracking a tough base, and
 		-- 3) We dont want to make the time scale too harshly towards the end or it encourages police to wait intentionally, and encouraging non-interaction is detrimental to roleplay.
 		["time_bonus_interval"] = 10,
-		["time_bonus_amount"] = 5800
+		["time_bonus_amount"] = 5000
 	}
 
 	-- no servers run these but it DOES exist
@@ -919,7 +919,7 @@ local function getValue(ent, owner)
 			for _, botnet in pairs(ent:GetChildren()) do
 				if not IsValid(botnet) or botnet:GetClass() ~= "zbf_bot" then continue end
 
-				GetPrice = GetPrice + (zbf.Bot.GetPrice(botnet:GetBotID()) * contraband["Values"]["botnet_multiplier"])
+				GetPrice = GetPrice + ((zbf.Bot.GetPrice(botnet:GetBotID()) * botnet:GetLevel()) * contraband["Values"]["botnet_multiplier"])
 			end
 
 			if GetPrice > 0 then
@@ -950,10 +950,10 @@ local function getValue(ent, owner)
 				for _, botnet in pairs(ent:GetParent():GetChildren()) do
 					if not IsValid(botnet) or botnet:GetClass() ~= "zbf_bot" then continue end
 
-					GetPrice = GetPrice + (zbf.Bot.GetPrice(botnet:GetBotID()) * contraband["Values"]["botnet_multiplier"])
+					GetPrice = GetPrice + ((zbf.Bot.GetPrice(botnet:GetBotID()) * botnet:GetLevel()) * contraband["Values"]["botnet_multiplier"])
 				end
 			else
-				GetPrice = zbf.Bot.GetPrice(ent:GetBotID()) * contraband["Values"]["botnet_multiplier"]
+				GetPrice = GetPrice + ((zbf.Bot.GetPrice(botnet:GetBotID()) * ent:GetLevel()) * contraband["Values"]["botnet_multiplier"])
 			end
 
 			if parentClass == "zbf_rack" then
