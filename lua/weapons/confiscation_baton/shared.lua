@@ -26,8 +26,8 @@ function loadContraband()
 		-- 1) It has to obviously be worth raiding, if you are getting consistently less than 100% of the entity's value back then there is no point in raiding at all, 
 		-- 2) The longer an entity exist, the more likelihood of the base being extremely tough to crack, so we need to make sure that it's worth the risk of cracking a tough base, and
 		-- 3) We dont want to make the time scale too harshly towards the end or it encourages police to wait intentionally, and encouraging non-interaction is detrimental to roleplay.
-		["time_bonus_interval"] = 10,
-		["time_bonus_amount"] = 5000
+		["time_bonus_interval"] = 20,
+		["time_bonus_amount"] = 2800
 	}
 
 	-- no servers run these but it DOES exist
