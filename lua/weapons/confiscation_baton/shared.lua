@@ -99,7 +99,8 @@ function loadContraband()
 		contraband["zgo2_jar"] = 500
 		contraband["zgo2_baggy"] = 250
 		contraband["zgo2_palette"] = 50
-		contraband["zgo2_clipper"] = 5000
+		contraband["zgo2_clipper"] = 10000
+		contraband["zgo2_weedpacker"] = 10000
 
 		table.insert(loadedAddons, "Zero's GrowOP 2")
 	end
