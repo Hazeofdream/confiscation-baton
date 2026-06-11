@@ -1117,7 +1117,7 @@ function SWEP:PrimaryAttack()
 				ent.ConfiscationValue = confiscationValue
 
 				if getValue(ent, self.Owner) then -- For entities with custom values
-					--ent:Remove()
+					ent:Remove()
 				else
 					notifyConfiscation(
 						self:GetOwner(),
