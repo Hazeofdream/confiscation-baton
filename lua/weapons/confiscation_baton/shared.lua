@@ -608,7 +608,7 @@ local function getValue(ent, owner)
 		if money == 0 then
 			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
 		else
-			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, money, "printed money")
+			notifyConfiscation(owner, getContrabandValue(ent) * printercount, ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, money, "printed money")
 		end
 
 		owner:addMoney(money + (getContrabandValue(ent) * printercount))
