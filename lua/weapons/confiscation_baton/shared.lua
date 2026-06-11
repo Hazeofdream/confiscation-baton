@@ -677,27 +677,102 @@ local function getValue(ent, owner)
 			return true
 		end		
 		
+		-- this thing is a nightmare btw
+		-- It doesn't JUST be the clipper, it can also have: a jar, a jar with weed contents, a jar with weed contents and branches churning
+		-- no branches with a motor & jar, or any combination of that 4 shit to check.
+		-- of course, it doesn't help that zero is a shit coder and checking the contents of an empty jar for weed THROWS AN ERROR
+		-- HEY BUDDY, HAVE YOU HEARD OF IsValid()? OR THIS NEAT THING CALLED 'or 0'????
 		if string.find(ent:GetClass(), "zgo2_clipper") then
-			local value = 0
-			if ent:GetHasMotor() then 
-				value = getContrabandValue(ent) + contraband["zgo2_motor"]
-				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, contraband["zgo2_motor"], "parts", "equipment") 
+			local weedvalue = 0
+
+			if ent:GetWeedAmount() > 0 then
+				weedvalue = ent:GetWeedAmount() * zgo2.Plant.GetSellValue(ent:GetWeedID())
+			end
+
+			local jarvalue = 0
+
+			for _, child in pairs(ent:GetChildren()) do
+				if IsValid(child) and child:GetClass() == "zgo2_jar" then
+					if child:GetWeedAmount() > 0 then
+						jarvalue = jarvalue + (zgo2.Plant.GetSellValue(child:GetWeedID()) * child:GetWeedAmount()) + contraband["zgo2_jar"] 
+					else
+						jarvalue = jarvalue + contraband["zgo2_jar"]
+					end
+				end
+			end
+
+			local motorvalue = ent:GetHasMotor() and contraband["zgo2_motor"] or 0
+			local extravalue = motorvalue + weedvalue + jarvalue
+			local value = getContrabandValue(ent) + extravalue
+
+			if extravalue > 0 then
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, extravalue, "parts and contents", "equipment")
 			else
-				value = getContrabandValue(ent)
-				notifyConfiscation(owner, value, ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
 			end
 
 			owner:addMoney(value)
 
 			return true
-		end	
-		
-		if string.find(ent:GetClass(), "zgo2_jar")  and not string.find(ent:GetClass(), "crate") then
+		end
+
+		if string.find(ent:GetClass(), "zgo2_packer") then
+			local weedvalue = 0
+
 			local weedID = ent:GetWeedID()
 			local weedAmount = ent:GetWeedAmount()
 
-			local WeedValue = zgo2.Plant.GetSellValue(weedID) * weedAmount
-			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, WeedValue, "weed") 
+			-- Packer can store weed, check that incase
+			if weedID and weedID ~= 0 and weedAmount and weedAmount > 0 then
+				weedvalue = weedAmount * zgo2.Plant.GetSellValue(weedID)
+			end
+
+			if weedvalue > 0 then
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, weedvalue, "packed weed", "machine")
+			else
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
+			end
+
+			owner:addMoney(weedvalue + getContrabandValue(ent))
+
+			return true
+		end
+
+		-- Account for all branches attached to a drying line
+		if string.find(ent:GetClass(), "zgo2_dryline") then
+			local weedvalue = 0
+
+			for _, branch in pairs(ent.WeedBranches) do
+				if not branch.id or not branch.amount then continue end
+
+				weedvalue = weedvalue + (branch.amount * zgo2.Plant.GetSellValue(branch.id))
+			end
+
+			if weedvalue > 0 then
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, weedvalue, "weed branches", "hook") 
+			else
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
+			end
+
+			owner:addMoney(weedvalue + getContrabandValue(ent))
+
+			return true
+		end
+		
+		if string.find(ent:GetClass(), "zgo2_jar")  and not string.find(ent:GetClass(), "crate") then
+			local jarweed = 0
+			local WeedValue = 0
+
+			if ent:GetWeedAmount() > 0 then
+				WeedValue = zgo2.Plant.GetSellValue(ent:GetWeedID()) * ent:GetWeedAmount()
+			end
+
+			if WeedValue > 0 then
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, WeedValue, "weed")
+			else
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
+			end
+
 			owner:addMoney(WeedValue + getContrabandValue(ent))
 
 			return true
@@ -730,21 +805,47 @@ local function getValue(ent, owner)
 			return true
 		end	
 		
-		if string.find(ent:GetClass(), "zgo2_jarcrate") then -- this took from 12:36 to 2:06 btw
-			local money = 0
-			for _, jar in pairs(ent.WeedList) do
-				if IsValid(jar) then
-					money = money + (jar:GetWeedAmount() * jar:GetWeedTHC())
-				end
+		if string.find(ent:GetClass(), "zgo2_crate") then
+			local weedvalue = 0
+
+			for _, branch in pairs(ent.WeedBranches or {}) do
+				if not branch.id or not branch.amount then continue end
+
+				weedvalue = weedvalue + (branch.amount * zgo2.Plant.GetSellValue(branch.id))
 			end
-			
-			if money == 0 then
-				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, money, "weed jars") 
+
+			if weedvalue > 0 then
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, weedvalue, "weed branches", "container")
 			else
 				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
 			end
 
-			owner:addMoney(getContrabandValue(ent) + money)
+			owner:addMoney(weedvalue + getContrabandValue(ent))
+
+			return true
+		end
+
+		if string.find(ent:GetClass(), "zgo2_jarcrate") then
+			local jarvalue = 0
+
+			for _, jar in pairs(ent.WeedList or {}) do
+				if not IsValid(jar) then continue end
+
+				jarvalue = jarvalue + (contraband["zgo2_jar"] or 0)
+
+				if jar:GetWeedAmount() > 0 then
+					jarvalue = jarvalue + (zgo2.Plant.GetSellValue(jar:GetWeedID()) * jar:GetWeedAmount())
+				end
+			end
+
+			if jarvalue > 0 then
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, jarvalue, "stored weed jars", "container")
+			else
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
+			end
+
+			owner:addMoney(jarvalue + getContrabandValue(ent))
+
 			return true
 		end
 		
@@ -866,27 +967,6 @@ local function getValue(ent, owner)
 				notifyConfiscation(owner, contraband["Tents"][getType], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, stored, "attached equipment", "the operating tent") 
 				owner:addMoney(getContrabandValue(ent) + stored)
 			end
-
-			return true
-		end
-
-		-- Account for all branches attached to a drying line
-		if string.find(ent:GetClass(), "zgo2_dryline") then
-			local weedvalue = 0
-
-			for _, branch in pairs(ent.WeedBranches) do
-				if not branch.id or not branch.amount then continue end
-
-				weedvalue = weedvalue + (branch.amount * zgo2.Plant.GetSellValue(branch.id))
-			end
-
-			if weedvalue > 0 then
-				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, weedvalue, "weed branches", "hook") 
-			else
-				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
-			end
-
-			owner:addMoney(weedvalue + getContrabandValue(ent))
 
 			return true
 		end
@@ -1063,7 +1143,7 @@ function SWEP:PrimaryAttack()
 	end
 end
 
-local ConfiscationBatonVersion = 3.9
+local ConfiscationBatonVersion = 4.0
 
 -- recently added console command, really only for the developer/powerusers
 -- shamelessly ported from my nightstick addon lmao
