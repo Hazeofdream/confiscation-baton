@@ -86,8 +86,6 @@ function loadContraband()
 		contraband["zgo2_watertank"] = 4000
 		contraband["zgo2_pump"] = 3000
 		contraband["zgo2_splicer"] = 1000
-		contraband["zgo2_packer"] = 4000
-		contraband["zgo2_dryline"] = 1500
 		contraband["zgo2_weedblock"] = 20000
 		contraband["zgo2_logbook"] = 1000
 		contraband["zgo2_crate"] = 1000
@@ -100,7 +98,8 @@ function loadContraband()
 		contraband["zgo2_baggy"] = 250
 		contraband["zgo2_palette"] = 50
 		contraband["zgo2_clipper"] = 10000
-		contraband["zgo2_weedpacker"] = 10000
+		contraband["zgo2_packer"] = 10000
+		contraband["zgo2_dryline"] = 1500
 
 		table.insert(loadedAddons, "Zero's GrowOP 2")
 	end
