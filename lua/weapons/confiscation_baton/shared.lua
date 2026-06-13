@@ -1040,33 +1040,32 @@ local function getValue(ent, owner)
 		-- Individual botnets not on a rack
 		if string.find(ent:GetClass(), "zbf_bot") then
 			local GetPrice = 0
-			local parentClass = nil
+			local Rack = nil
+			local RackClass = nil
 
-			local success, result = pcall(function()
-				return ent:GetParent():GetClass()
+			success, Rack, RackClass = pcall(function()
+				return ent:GetParent(), ent:GetParent():GetClass()
 			end)
 
-			if success then
-				parentClass = result
-			end
-
-			if parentClass == "zbf_rack" then
-				for _, botnet in pairs(ent:GetParent():GetChildren()) do
+			if RackClass == "zbf_rack" then
+				for _, botnet in pairs(Rack:GetChildren()) do
 					if not IsValid(botnet) or botnet:GetClass() ~= "zbf_bot" then continue end
 
 					GetPrice = GetPrice + ((zbf.Bot.GetPrice(botnet:GetBotID()) * botnet:GetLevel()) * contraband["Values"]["botnet_multiplier"])
+					botnet:Remove()
 				end
 			else
-				GetPrice = GetPrice + ((zbf.Bot.GetPrice(botnet:GetBotID()) * ent:GetLevel()) * contraband["Values"]["botnet_multiplier"])
+				GetPrice = GetPrice + ((zbf.Bot.GetPrice(ent:GetBotID()) * ent:GetLevel()) * contraband["Values"]["botnet_multiplier"])
 			end
 
-			if parentClass == "zbf_rack" then
-				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, GetPrice, "botnets", "equipment")
+			if RackClass == "zbf_rack" then
+				notifyConfiscation(owner, getContrabandValue(Rack), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, GetPrice, "botnets", "the botnet rack")
+				Rack:Remove()
 			else
 				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, GetPrice, "botnet value")
 			end
 
-			owner:addMoney(GetPrice + getContrabandValue(ent))
+			owner:addMoney(GetPrice + getContrabandValue(RackClass == "zbf_rack" and Rack or ent))
 
 			return true
 		end
@@ -1143,7 +1142,7 @@ function SWEP:PrimaryAttack()
 	end
 end
 
-local ConfiscationBatonVersion = "4.0"
+local ConfiscationBatonVersion = "4.1"
 
 -- recently added console command, really only for the developer/powerusers
 -- shamelessly ported from my nightstick addon lmao
