@@ -1040,8 +1040,7 @@ local function getValue(ent, owner)
 		-- Individual botnets not on a rack
 		if string.find(ent:GetClass(), "zbf_bot") then
 			local GetPrice = 0
-			local Rack = nil
-			local RackClass = nil
+			local Rack, RackClass = nil, nil
 
 			success, Rack, RackClass = pcall(function()
 				return ent:GetParent(), ent:GetParent():GetClass()
