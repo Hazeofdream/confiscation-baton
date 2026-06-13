@@ -1027,7 +1027,7 @@ local function getValue(ent, owner)
 			end
 
 			if GetPrice > 0 then
-				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, GetPrice, "botnets", "equipment")
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, GetPrice, "botnets", "the botnet rack")
 			else
 				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
 			end
