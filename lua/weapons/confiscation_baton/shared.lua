@@ -1047,6 +1047,7 @@ local function getValue(ent, owner)
 				return ent:GetParent(), ent:GetParent():GetClass()
 			end)
 
+			-- Botnets within a rack
 			if RackClass == "zbf_rack" then
 				for _, botnet in pairs(Rack:GetChildren()) do
 					if not IsValid(botnet) or botnet:GetClass() ~= "zbf_bot" then continue end
