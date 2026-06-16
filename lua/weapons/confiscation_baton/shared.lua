@@ -9,7 +9,6 @@ contraband = contraband or {}
 
 -- Only add items that actually exist on the server
 function loadContraband()
-	local contraband = contraband
 	local loadedAddons = {}
 
 	contraband["Values"] = {
@@ -303,6 +302,8 @@ function loadContraband()
 		print("  - " .. addonName)
 	end
 end
+
+loadContraband() -- incase a hotload happens
 
 hook.Add("InitPostEntity", "ConfiscationBaton_LoadContraband", loadContraband)
 
@@ -1060,6 +1061,7 @@ local function getValue(ent, owner)
 			end
 
 			if RackClass == "zbf_rack" then
+				--notifyConfiscation(owner, getContrabandValue(Rack), getContrabandValue(Rack), math.max(CurTime() - Rack:GetCreationTime(), 0), GetPrice, "botnets", "the botnet rack")
 				notifyConfiscation(owner, getContrabandValue(Rack), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, GetPrice, "botnets", "the botnet rack")
 				Rack:Remove()
 			else
