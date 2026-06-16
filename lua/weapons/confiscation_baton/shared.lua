@@ -9,6 +9,7 @@ contraband = contraband or {}
 
 -- Only add items that actually exist on the server
 function loadContraband()
+	local contraband = contraband
 	local loadedAddons = {}
 
 	contraband["Values"] = {
