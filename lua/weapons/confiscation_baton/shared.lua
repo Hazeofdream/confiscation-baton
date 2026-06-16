@@ -1061,7 +1061,7 @@ local function getValue(ent, owner)
 			end
 
 			if RackClass == "zbf_rack" then
-				notifyConfiscation(owner, getContrabandValue(Rack), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, GetPrice, "botnets", "the botnet rack")
+				notifyConfiscation(owner, getContrabandValue(Rack), getContrabandValue(Rack), math.max(CurTime() - Rack:GetCreationTime(), 0), GetPrice, "botnets", "the botnet rack")
 				Rack:Remove()
 			else
 				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, GetPrice, "botnet value")
