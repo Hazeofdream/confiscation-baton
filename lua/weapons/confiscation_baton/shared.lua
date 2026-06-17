@@ -5,317 +5,245 @@ AddCSLuaFile()
 -- contact https:/steamcommunity.com/id/Haze_of_dream for issues if it's an emergency
 -- otherwise PLEASE use https://steamcommunity.com/workshop/filedetails/discussion/2981130069/3834298194196734223/
 
-contraband = contraband or {}
-
--- Only add items that actually exist on the server
-function loadContraband()
-	local loadedAddons = {}
-
-	contraband["Values"] = {
+local contraband = {
+	["Values"] = {
 		-- controls how much the actual printer values get multiplied
-		-- we multiply to encourage hitting hard targets, only giving the base amount of the printer would discorage pd raids as it would be more profitable to print yourself.
+		-- we multiply to encourage hitting hard targets, only giving the base amount of the printer would discourage pd raids
 		["printer_multiplier"] = 5,
-		
-		-- this looks like alot until you print moonshine's predicted values
+
+		-- this looks like a lot until you print moonshine's predicted values
 		["moonshine_multiplier"] = 42,
 
 		["botnet_multiplier"] = 2,
-		
+
 		-- bonus payout added for every x seconds an entity exists
-		-- This is intentionally high because of the following considerations:
-		-- 1) It has to obviously be worth raiding, if you are getting consistently less than 100% of the entity's value back then there is no point in raiding at all, 
-		-- 2) The longer an entity exist, the more likelihood of the base being extremely tough to crack, so we need to make sure that it's worth the risk of cracking a tough base, and
-		-- 3) We dont want to make the time scale too harshly towards the end or it encourages police to wait intentionally, and encouraging non-interaction is detrimental to roleplay.
+		-- This is intentionally high because:
+		-- 1) Raids need to be worth doing
+		-- 2) Older entities are usually in stronger bases
+		-- 3) We don't want police waiting intentionally before raiding
 		["time_bonus_interval"] = 15,
 		["time_bonus_amount"] = 2800
-	}
+	},
 
-	-- no servers run these but it DOES exist
-	contraband["money_printer"] = 2000
+	-- Vanilla
+	["money_printer"] = 2000,
 
 	-- Zero's Weedfarm
-	if scripted_ents.GetStored("zwf_doobytable") then
-		contraband["zwf_doobytable"] = 4000
-		contraband["zwf_mixer"] = 4000
-		contraband["zwf_muffinmix"] = 350
-		contraband["zwf_oven"] = 4000
-		contraband["zwf_generator"] = 4000
-		contraband["zwf_fuel"] = 1000
-		contraband["zwf_lamp"] = 2500
-		contraband["zwf_ventilator"] = 2500
-		contraband["zwf_outlet"] = 250
-		contraband["zwf_pot"] = 250
-		contraband["zwf_pot_hydro"] = 400
-		contraband["zwf_soil"] = 250
-		contraband["zwf_watertank"] = 2500
-		contraband["zwf_drystation"] = 2500
-		contraband["zwf_packingstation"] = 2500
-		contraband["zwf_autopacker"] = 7500
-		contraband["zwf_splice_lab"] = 4000
-		contraband["zwf_seed_bank"] = 1000
-		contraband["zwf_seed"] = 2500
-		contraband["zwf_nutrition"] = 2000
-		contraband["zwf_weedstick"] = 1000
-		contraband["zwf_muffin"] = 1000
-		contraband["zwf_bong01_ent"] = 1000
-		contraband["zwf_bong02_ent"] = 1000
-		contraband["zwf_bong03_ent"] = 1000
-		contraband["zwf_jar"] = 2500
-		contraband["zwf_palette"] = 2500
-		contraband["zwf_weedblock"] = 1000
-
-		table.insert(loadedAddons, "Zero's Weedfarm")
-	end
+	["zwf_doobytable"] = 4000,
+	["zwf_mixer"] = 4000,
+	["zwf_muffinmix"] = 350,
+	["zwf_oven"] = 4000,
+	["zwf_generator"] = 4000,
+	["zwf_fuel"] = 1000,
+	["zwf_lamp"] = 2500,
+	["zwf_ventilator"] = 2500,
+	["zwf_outlet"] = 250,
+	["zwf_pot"] = 250,
+	["zwf_pot_hydro"] = 400,
+	["zwf_soil"] = 250,
+	["zwf_watertank"] = 2500,
+	["zwf_drystation"] = 2500,
+	["zwf_packingstation"] = 2500,
+	["zwf_autopacker"] = 7500,
+	["zwf_splice_lab"] = 4000,
+	["zwf_seed_bank"] = 1000,
+	["zwf_seed"] = 2500,
+	["zwf_nutrition"] = 2000,
+	["zwf_weedstick"] = 1000,
+	["zwf_muffin"] = 1000,
+	["zwf_bong01_ent"] = 1000,
+	["zwf_bong02_ent"] = 1000,
+	["zwf_bong03_ent"] = 1000,
+	["zwf_jar"] = 2500,
+	["zwf_palette"] = 2500,
+	["zwf_weedblock"] = 1000,
 
 	-- Zero's GrowOP 2
-	if scripted_ents.GetStored("zgo2_lamp") then
-		contraband["zgo2_lamp"] = 0
-		contraband["zgo2_tent"] = 0
-		contraband["zgo2_pot"] = 0
-		contraband["zgo2_rack"] = 0
-		contraband["zgo2_backmix"] = 0
-		contraband["zgo2_doobytable"] = 1000
-		contraband["zgo2_mixer"] = 1000
-		contraband["zgo2_oven"] = 1000
-		contraband["zgo2_soil"] = 200
-		contraband["zgo2_battery"] = 1000
-		contraband["zgo2_bulb"] = 1000
-		contraband["zgo2_seedlibary"] = 1000
-		contraband["zgo2_seed"] = 1000
-		contraband["zgo2_watertank_small"] = 3000
-		contraband["zgo2_watertank"] = 4000
-		contraband["zgo2_pump"] = 3000
-		contraband["zgo2_splicer"] = 1000
-		contraband["zgo2_weedblock"] = 20000
-		contraband["zgo2_logbook"] = 1000
-		contraband["zgo2_crate"] = 1000
-		contraband["zgo2_motor"] = 1000
-		contraband["zgo2_generator"] = 4000
+	["zgo2_lamp"] = 0,
+	["zgo2_tent"] = 0,
+	["zgo2_pot"] = 0,
+	["zgo2_rack"] = 0,
+	["zgo2_backmix"] = 0,
+	["zgo2_doobytable"] = 1000,
+	["zgo2_mixer"] = 1000,
+	["zgo2_oven"] = 1000,
+	["zgo2_soil"] = 200,
+	["zgo2_battery"] = 1000,
+	["zgo2_bulb"] = 1000,
+	["zgo2_seedlibary"] = 1000,
+	["zgo2_seed"] = 1000,
+	["zgo2_watertank_small"] = 3000,
+	["zgo2_watertank"] = 4000,
+	["zgo2_pump"] = 3000,
+	["zgo2_splicer"] = 1000,
+	["zgo2_weedblock"] = 20000,
+	["zgo2_logbook"] = 1000,
+	["zgo2_crate"] = 1000,
+	["zgo2_motor"] = 1000,
+	["zgo2_generator"] = 4000,
+	["zgo2_jarcrate"] = 50,
+	["zgo2_weedbranch"] = 500,
+	["zgo2_jar"] = 500,
+	["zgo2_baggy"] = 250,
+	["zgo2_palette"] = 50,
+	["zgo2_clipper"] = 10000,
+	["zgo2_packer"] = 10000,
+	["zgo2_dryline"] = 1500,
 
-		contraband["zgo2_jarcrate"] = 50
-		contraband["zgo2_weedbranch"] = 500
-		contraband["zgo2_jar"] = 500
-		contraband["zgo2_baggy"] = 250
-		contraband["zgo2_palette"] = 50
-		contraband["zgo2_clipper"] = 10000
-		contraband["zgo2_packer"] = 10000
-		contraband["zgo2_dryline"] = 1500
+	["Racks"] = {
+		["default"] = 4000,
+		["01"] = 2000,
+	},
 
-		contraband["Racks"] = {
-			["default"] = 4000,
-			["01"] = 2000,
-		}
+	["Mixes"] = {
+		["muffin"] = 500,
+		["brownie"] = 500,
+		["patty"] = 500,
+		["cookie"] = 500,
+		["cinnamon"] = 500,
+		["donut"] = 500
+	},
 
-		contraband["Mixes"] = {
-			["muffin"] = 500,
-			["brownie"] = 500,
-			["patty"] = 500,
-			["cookie"] = 500,
-			["cinnamon"] = 500,
-			["donut"] = 500
-		}
+	["SodiumLamps"] = {
+		["01"] = 1000,
+		["02"] = 2000,
+		["03"] = 4000
+	},
 
-		contraband["SodiumLamps"] = {
-			["01"] = 1000,
-			["02"] = 2000,
-			["03"] = 4000
-		}
+	["LEDLamps"] = {
+		["01"] = 2000,
+		["02"] = 4000,
+		["03"] = 6000
+	},
 
-		contraband["LEDLamps"] = {
-			["01"] = 2000,
-			["02"] = 4000,
-			["03"] = 6000
-		}
+	["Generators"] = {
+		["01"] = 4000,
+		["large_generator"] = 8000
+	},
 
-		contraband["Generators"] = {
-			["01"] = 4000,
-			["large_generator"] = 8000
-		}
+	["Pots"] = {
+		[".m"] = 1000,
+		["04"] = 500,
+		["01"] = 1500,
+		["02"] = 2000,
+		["03"] = 1500,
+		["05"] = 1000,
+		["06"] = 500
+	},
 
-		contraband["Pots"] = {
-			[".m"] = 1000,
-			["04"] = 500,
-			["01"] = 1500,
-			["02"] = 2000,
-			["03"] = 1500,
-			["05"] = 1000,
-			["06"] = 500
-		}
-
-		contraband["WeedTents"] = {
-			["01"] = 2000,
-			["02"] = 5500
-		}
-
-		table.insert(loadedAddons, "Zero's GrowOP 2")
-	end
+	["WeedTents"] = {
+		["01"] = 2000,
+		["02"] = 5500
+	},
 
 	-- Zero's Meth Lab 2
-	if scripted_ents.GetStored("zmlab2_tent") then
-		contraband["zmlab2_tent"] = 0
-		contraband["zmlab2_item_frezzertray"] = 200
-		contraband["zmlab2_equipment"] = 750
-		contraband["zmlab2_item_autobreaker"] = 4000
-		contraband["zmlab2_item_acid"] = 1000
-		contraband["zmlab2_item_aluminium"] = 1000
-		contraband["zmlab2_item_lox"] = 1000
-		contraband["zmlab2_item_methylamine"] = 1000
-		contraband["zmlab2_machine_filler"] = 1000
-		contraband["zmlab2_machine_filter"] = 1000
-		contraband["zmlab2_machine_frezzer"] = 1000
-		contraband["zmlab2_machine_furnace"] = 1000
-		contraband["zmlab2_machine_mixer"] = 1000
-		contraband["zmlab2_machine_ventilation"] = 1000
-		contraband["zmlab2_storage"] = 1000
-		contraband["zmlab2_table"] = 1000
+	["zmlab2_tent"] = 0,
+	["zmlab2_item_frezzertray"] = 200,
+	["zmlab2_equipment"] = 750,
+	["zmlab2_item_autobreaker"] = 4000,
+	["zmlab2_item_acid"] = 1000,
+	["zmlab2_item_aluminium"] = 1000,
+	["zmlab2_item_lox"] = 1000,
+	["zmlab2_item_methylamine"] = 1000,
+	["zmlab2_machine_filler"] = 1000,
+	["zmlab2_machine_filter"] = 1000,
+	["zmlab2_machine_frezzer"] = 1000,
+	["zmlab2_machine_furnace"] = 1000,
+	["zmlab2_machine_mixer"] = 1000,
+	["zmlab2_machine_ventilation"] = 1000,
+	["zmlab2_storage"] = 1000,
+	["zmlab2_table"] = 1000,
+	["zmlab2_item_meth"] = 250,
+	["zmlab2_item_crate"] = 500,
+	["zmlab2_item_palette"] = 1000,
 
-		contraband["zmlab2_item_meth"] = 250
-		contraband["zmlab2_item_crate"] = 500
-		contraband["zmlab2_item_palette"] = 1000
-
-		contraband["Tents"] = {
-			["unbuilt"] = 3000,
-			["01"] = 4000,
-			["02"] = 2000,
-			["03"] = 14000,
-			["04"] = 10000,
-			["05"] = 10000
-		}
-
-		table.insert(loadedAddons, "Zero's Meth Lab 2")
-	end
+	["Tents"] = {
+		["unbuilt"] = 3000,
+		["01"] = 4000,
+		["02"] = 2000,
+		["03"] = 14000,
+		["04"] = 10000,
+		["05"] = 10000
+	},
 
 	-- Zero's Yeastbeast aka Moonshine
-	if scripted_ents.GetStored("zyb_distillery") then
-		contraband["zyb_constructionkit_condenser"] = 2500
-		contraband["zyb_constructionkit_cooler"] = 2500
-		contraband["zyb_fermbarrel"] = 500
-		contraband["zyb_yeastgrinder"] = 2000
-		contraband["zyb_jarcrate"] = 200
-		contraband["zyb_jarpack"] = 200
-		contraband["zyb_paperbag"] = 100
-		contraband["zyb_sugar"] = 100
-		contraband["zyb_water"] = 100
-		contraband["zyb_fuel"] = 50
-		contraband["zyb_yeast"] = 100
-		contraband["zyb_distillery"] = 1000
-		contraband["zyb_distillery_cooler"] = 4500
-		contraband["zyb_distillery_condenser"] = 4500
-
-		table.insert(loadedAddons, "Zero's Moonshine")
-	end
+	["zyb_constructionkit_condenser"] = 2500,
+	["zyb_constructionkit_cooler"] = 2500,
+	["zyb_fermbarrel"] = 500,
+	["zyb_yeastgrinder"] = 2000,
+	["zyb_jarcrate"] = 200,
+	["zyb_jarpack"] = 200,
+	["zyb_paperbag"] = 100,
+	["zyb_sugar"] = 100,
+	["zyb_water"] = 100,
+	["zyb_fuel"] = 50,
+	["zyb_yeast"] = 100,
+	["zyb_distillery"] = 1000,
+	["zyb_distillery_cooler"] = 4500,
+	["zyb_distillery_condenser"] = 4500,
 
 	-- Zero's CrackerMaker
-	if scripted_ents.GetStored("zcm_crackermachine") then
-		contraband["zcm_blackpowder"] = 2000
-		contraband["zcm_crackermachine"] = 5000
-		contraband["zcm_paperroll"] = 2000
-		contraband["zcm_firecracker"] = 1500
-		contraband["zcm_box"] = 200
-
-		table.insert(loadedAddons, "Zero's CrackerMaker")
-	end
+	["zcm_blackpowder"] = 2000,
+	["zcm_crackermachine"] = 5000,
+	["zcm_paperroll"] = 2000,
+	["zcm_firecracker"] = 1500,
+	["zcm_box"] = 200,
 
 	-- sPrinters
-	if scripted_ents.GetStored("sprinter_tier_1") then
-		contraband["sprinter_tier_1"] = 5000
-		contraband["sprinter_tier_2"] = 6000
-		contraband["sprinter_tier_3"] = 7000
-		contraband["sprinter_tier_4"] = 9000
-		contraband["sprinter_rack"] = 25000
-
-		table.insert(loadedAddons, "sPrinters")
-	end
+	["sprinter_tier_1"] = 5000,
+	["sprinter_tier_2"] = 6000,
+	["sprinter_tier_3"] = 7000,
+	["sprinter_tier_4"] = 9000,
+	["sprinter_rack"] = 25000,
 
 	-- Cocaine Factory
-	if scripted_ents.GetStored("cocaine_extractor") then
-		contraband["cocaine_baking_soda"] = 50
-		contraband["cocaine_water"] = 75
-		contraband["cocaine_box"] = 100
-		contraband["cocaine_bucket"] = 75
-		contraband["cocaine_extractor"] = 1750
-		contraband["cocaine_drying_rack"] = 1500
-		contraband["cocaine_gas"] = 350
-		contraband["cocaine_cooking_plate"] = 250
-		contraband["cocaine_leaves"] = 50
-		contraband["cocaine_stove"] = 1500
-		contraband["cocaine_pack"] = 2500
+	["cocaine_baking_soda"] = 50,
+	["cocaine_water"] = 75,
+	["cocaine_box"] = 100,
+	["cocaine_bucket"] = 75,
+	["cocaine_extractor"] = 1750,
+	["cocaine_drying_rack"] = 1500,
+	["cocaine_gas"] = 350,
+	["cocaine_cooking_plate"] = 250,
+	["cocaine_leaves"] = 50,
+	["cocaine_stove"] = 1500,
+	["cocaine_pack"] = 2500,
 
-		table.insert(loadedAddons, "Cocaine Factory")
-	end
-
-	-- Bricks Gang Printer
-	if scripted_ents.GetStored("bricks_server_gangprinter") then
-		contraband["bricks_server_gangprinter"] = 40000
-	
-		table.insert(loadedAddons, "Brick's Gang Printer")
-	end
-
-	-- Bitminer's
-	if scripted_ents.GetStored("ch_bitminer_shelf") then
-		contraband["ch_bitminer_shelf"] = 10000
-		contraband["ch_bitminer_upgrade_cooling1"] = 6000
-		contraband["ch_bitminer_upgrade_cooling2"] = 7000
-		contraband["ch_bitminer_upgrade_cooling3"] = 8000
-		contraband["ch_bitminer_power_generator"] = 3000
-		contraband["ch_bitminer_power_generator_fuel"] = 1000
-		contraband["ch_bitminer_upgrade_miner"] = 700
-		contraband["ch_bitminer_power_cable"] = 300
-		contraband["ch_bitminer_power_combiner"] = 2000
-		contraband["ch_bitminer_power_rtg"] = 9000
-		contraband["ch_bitminer_power_solar"] = 6000
-		contraband["ch_bitminer_upgrade_ups"] = 1000
-		contraband["ch_bitminer_upgrade_rgb"] = 2000
-
-		table.insert(loadedAddons, "Crap-Head's Bitminers 2")
-	end
+	-- Bricks Gangs
+	["bricks_server_gangprinter"] = 40000,
 
 	-- Exhibition
-	-- Not a server available yet, but will be soon :)
-	if scripted_ents.GetStored("exhib_printer") then
-		contraband["exhib_printer"] = 15000
-
-		table.insert(loadedAddons, "Exhibition Printers")
-	end
+	["exhib_printer"] = 15000,
 
 	-- Zero's Botnet
-	if scripted_ents.GetStored("zbf_controller") then
-		contraband["zbf_controller"] = 3000
-		contraband["zbf_rack"] = 3000
-	
-		contraband["zbf_bot"] = 0
+	["zbf_controller"] = 3000,
+	["zbf_rack"] = 3000,
+	["zbf_bot"] = 0,
 
-		table.insert(loadedAddons, "Zero's Botnet")
-	end
+	-- Cocaine factory
+	["lean_barrel"] = 15000,
+	["lean_crate"] = 30000,
+	["lean_smallcrate"] = 7500,
+	["lean_cup"] = 1500,
 
-	-- Lean Production
-	if scripted_ents.GetStored("lean_barrel") then
-		contraband["lean_barrel"] = 15000
-		contraband["lean_crate"] = 30000
-		contraband["lean_smallcrate"] = 7500
-		contraband["lean_cup"] = 1500
+	-- Shenesis'
+	["sh_detector_jammer"] = 3000,
 
-		table.insert(loadedAddons, "Lean Production")
-	end
-
-	-- Shenisis
-	if scripted_ents.GetStored("sh_detector_jammer") then
-		contraband["sh_detector_jammer"] = 3000
-
-		table.insert(loadedAddons, "Shenisis' Entities")
-	end
-
-	if CLIENT then return end
-
-	print("[Confiscation Baton] Loaded Contraband support for " .. #loadedAddons .. " addons:")
-
-	for _, addonName in pairs(loadedAddons) do
-		print("  - " .. addonName)
-	end
-end
-
-hook.Remove("InitPostEntity", "ConfiscationBaton_LoadContraband")
-hook.Add("InitPostEntity", "ConfiscationBaton_LoadContraband", loadContraband)
+	-- Crap-Head's Bitminers 2
+	["ch_bitminer_shelf"] = 10000,
+	["ch_bitminer_upgrade_cooling1"] = 6000,
+	["ch_bitminer_upgrade_cooling2"] = 7000,
+	["ch_bitminer_upgrade_cooling3"] = 8000,
+	["ch_bitminer_power_generator"] = 3000,
+	["ch_bitminer_power_generator_fuel"] = 1000,
+	["ch_bitminer_upgrade_miner"] = 700,
+	["ch_bitminer_power_cable"] = 300,
+	["ch_bitminer_power_combiner"] = 2000,
+	["ch_bitminer_power_rtg"] = 9000,
+	["ch_bitminer_power_solar"] = 6000,
+	["ch_bitminer_upgrade_ups"] = 1000,
+	["ch_bitminer_upgrade_rgb"] = 2000
+}
 
 if CLIENT then
     SWEP.Slot = 1
@@ -1126,6 +1054,8 @@ local function getValue(ent, owner)
 	end
 end
 
+PrintTable(contraband)
+
 function SWEP:PrimaryAttack()
     self:SetHoldType("melee")
     self:SetHoldTypeChangeTime(CurTime() + 0.3)
@@ -1183,12 +1113,11 @@ function SWEP:PrimaryAttack()
 			self.Owner:EmitSound(self.FleshHit[math.random(#self.FleshHit)])
 		end
     else
-		-- Make noise
 		self.Owner:EmitSound(self.Hit[math.random(#self.Hit)])
 	end
 end
 
-local ConfiscationBatonVersion = "4.3"
+local ConfiscationBatonVersion = "4.4"
 
 -- recently added console command, really only for the developer/powerusers
 -- shamelessly ported from my nightstick addon lmao
