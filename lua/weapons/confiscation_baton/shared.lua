@@ -101,6 +101,52 @@ function loadContraband()
 		contraband["zgo2_packer"] = 10000
 		contraband["zgo2_dryline"] = 1500
 
+		contraband["Racks"] = {
+			["default"] = 4000,
+			["01"] = 2000,
+		}
+
+		contraband["Mixes"] = {
+			["muffin"] = 500,
+			["brownie"] = 500,
+			["patty"] = 500,
+			["cookie"] = 500,
+			["cinnamon"] = 500,
+			["donut"] = 500
+		}
+
+		contraband["SodiumLamps"] = {
+			["01"] = 1000,
+			["02"] = 2000,
+			["03"] = 4000
+		}
+
+		contraband["LEDLamps"] = {
+			["01"] = 2000,
+			["02"] = 4000,
+			["03"] = 6000
+		}
+
+		contraband["Generators"] = {
+			["01"] = 4000,
+			["large_generator"] = 8000
+		}
+
+		contraband["Pots"] = {
+			[".m"] = 1000,
+			["04"] = 500,
+			["01"] = 1500,
+			["02"] = 2000,
+			["03"] = 1500,
+			["05"] = 1000,
+			["06"] = 500
+		}
+
+		contraband["WeedTents"] = {
+			["01"] = 2000,
+			["02"] = 5500
+		}
+
 		table.insert(loadedAddons, "Zero's GrowOP 2")
 	end
 
@@ -127,43 +173,8 @@ function loadContraband()
 		contraband["zmlab2_item_crate"] = 500
 		contraband["zmlab2_item_palette"] = 1000
 
-		contraband["SodiumLamps"] = {
-			["01"] = 1000,
-			["02"] = 2000,
-			["03"] = 4000
-		}
-
-		contraband["LEDLamps"] = {
-			["01"] = 2000,
-			["02"] = 4000,
-			["03"] = 6000
-		}
-
-		contraband["Generators"] = {
-			["01"] = 2000,
-			[".m"] = 4000
-		}
-
-		contraband["Pots"] = {
-			[".m"] = 1000,
-			["04"] = 500,
-			["01"] = 1500,
-			["02"] = 2000,
-			["03"] = 1500,
-			["05"] = 1000,
-			["06"] = 500
-		}
-
-		contraband["Mixes"] = {
-			["muffin"] = 500,
-			["brownie"] = 500,
-			["patty"] = 500,
-			["cookie"] = 500,
-			["cinnamon"] = 500,
-			["donut"] = 500
-		}
-
 		contraband["Tents"] = {
+			["unbuilt"] = 3000,
 			["01"] = 4000,
 			["02"] = 2000,
 			["03"] = 14000,
@@ -303,8 +314,7 @@ function loadContraband()
 	end
 end
 
-loadContraband() -- incase a hotload happens
-
+hook.Remove("InitPostEntity", "ConfiscationBaton_LoadContraband")
 hook.Add("InitPostEntity", "ConfiscationBaton_LoadContraband", loadContraband)
 
 if CLIENT then
@@ -537,13 +547,12 @@ local function getValue(ent, owner)
 		end
 
 		if string.find(ent:GetClass(), "zmlab2_tent") then
-			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_methlab/zmlab2_tent")[2]
-			local mdltrim = string.Split(pathtrim, ".mdl")[1]
-			local getType = string.sub(mdltrim, 1, 2)
+			local getType = string.match(ent:GetModel(), "zmlab2_tent(%d+)") or "unbuilt"
+			local tentValue = contraband["Tents"][getType] or 0
 
-			notifyConfiscation(owner, contraband["Tents"][getType], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
+			notifyConfiscation(owner, tentValue, ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
 
-			owner:addMoney(contraband["Tents"][getType] + getContrabandValue(ent))
+			owner:addMoney(tentValue + getContrabandValue(ent))
 
 			return true
 		end
@@ -723,12 +732,9 @@ local function getValue(ent, owner)
 		if string.find(ent:GetClass(), "zgo2_packer") then
 			local weedvalue = 0
 
-			local weedID = ent:GetWeedID()
-			local weedAmount = ent:GetWeedAmount()
-
 			-- Packer can store weed, check that incase
-			if weedID and weedID ~= 0 and weedAmount and weedAmount > 0 then
-				weedvalue = weedAmount * zgo2.Plant.GetSellValue(weedID)
+			if ent:GetWeedAmount() > 0 then
+				weedvalue = ent:GetWeedAmount() * zgo2.Plant.GetSellValue(ent:GetWeedID())
 			end
 
 			if weedvalue > 0 then
@@ -862,38 +868,38 @@ local function getValue(ent, owner)
 			return true
 		end
 		
-		if string.find(ent:GetClass(), "zgo2_lamp") and string.find(ent:GetModel(), "sodium")  and not string.find(ent:GetModel(), "tent") then
-			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
-			local getType = string.sub(pathtrim, 17, 18)
+		if string.find(ent:GetModel(), "zgo2_sodium_lamp") then
+			local getType = string.match(ent:GetModel(), "zgo2_sodium_lamp(%d+)")
+			local lampValue = contraband["SodiumLamps"][getType] or 0
 
-			notifyConfiscation(owner, contraband["SodiumLamps"][getType], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
+			notifyConfiscation(owner, getContrabandValue(ent) + lampValue, ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
+
+			owner:addMoney(getContrabandValue(ent) + lampValue)
+
+			return true
+		end	
+		
+		if string.find(ent:GetModel(), "zgo2_led_lamp") then
+			local getType = string.match(ent:GetModel(), "zgo2_led_lamp(%d+)")
+			local lampValue = contraband["LEDLamps"][getType] or 0
+
+			notifyConfiscation(owner, getContrabandValue(ent) + lampValue, ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
+
+			owner:addMoney(getContrabandValue(ent) + lampValue)
+
+			return true
+		end	
+		
+		if string.find(ent:GetModel(), "zgo2_tent_led_lamp") then
+			notifyConfiscation(owner, getContrabandValue(ent) + contraband["LEDLamps"]["01"], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
 
 			owner:addMoney(getContrabandValue(ent))
 
 			return true
 		end	
 		
-		if string.find(ent:GetClass(), "zgo2_lamp") and string.find(ent:GetModel(), "led") and not string.find(ent:GetModel(), "tent") then
-			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
-			local getType = string.sub(pathtrim, 15, 16)
-
-			notifyConfiscation(owner, contraband["LEDLamps"][getType], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
-
-			owner:addMoney(getContrabandValue(ent))
-
-			return true
-		end	
-		
-		if string.find(ent:GetClass(), "zgo2_lamp") and string.find(ent:GetModel(), "led") and string.find(ent:GetModel(), "tent") then
-			notifyConfiscation(owner, contraband["LEDLamps"]["01"], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
-
-			owner:addMoney(getContrabandValue(ent))
-
-			return true
-		end	
-		
-		if string.find(ent:GetClass(), "zgo2_lamp") and string.find(ent:GetModel(), "sodium") and string.find(ent:GetModel(), "tent") then
-			notifyConfiscation(owner, contraband["SodiumLamps"]["01"], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
+		if string.find(ent:GetModel(), "zgo2_tent_sodium_lamp") then
+			notifyConfiscation(owner, getContrabandValue(ent) + contraband["SodiumLamps"]["01"], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
 
 			owner:addMoney(getContrabandValue(ent))
 
@@ -901,75 +907,118 @@ local function getValue(ent, owner)
 		end
 		
 		if string.find(ent:GetClass(), "zgo2_generator") then
-			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
-			local getType = string.sub(pathtrim, 15, 16)
+			local getType = string.match(ent:GetModel(), "zgo2_generator(%d+)") or "large_generator"
+			local generatorValue = contraband["Generators"][getType] or 0
 			
-			notifyConfiscation(owner, contraband["Generators"][getType], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
+			notifyConfiscation(owner, generatorValue + getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
 
-			owner:addMoney(getContrabandValue(ent))
+			owner:addMoney(generatorValue + getContrabandValue(ent))
 
 			return true
 		end	
 		
 		
 		if string.find(ent:GetClass(), "zgo2_pot") then
-			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
-			local getType = string.sub(pathtrim, 9, 10)
-			
-			notifyConfiscation(owner, contraband["Pots"][getType], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
+			local getType = string.match(ent:GetModel(), "zgo2_pot(%d+)") or "default"
+			local potValue = contraband["Pots"][getType] or 0
+			local weedValue = 0
 
-			owner:addMoney(getContrabandValue(ent))
+			local plant = ent.GetPlant and ent:GetPlant()
+
+			if IsValid(plant) and plant.GetPlantID then
+				local plantID = plant:GetPlantID()
+
+				if plantID and plantID > 0 then
+					weedValue = weedValue + zgo2.Plant.GetSellValue(plantID)
+				end
+			end
+
+			local value = getContrabandValue(ent) + potValue + weedValue
+
+			if weedValue > 0 then
+				notifyConfiscation(owner, getContrabandValue(ent) + potValue, ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, weedValue, "growing weed", "pot")
+			else
+				notifyConfiscation(owner, getContrabandValue(ent) + potValue, ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
+			end
+
+			owner:addMoney(value)
 
 			return true
-		end		
+		end	
 		
 		if string.find(ent:GetClass(), "zgo2_backmix") then
-			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
-			local mdltrim = string.Split(pathtrim, ".mdl")[1]
-			local getType = string.sub(mdltrim, 14, 25)
+			local getType = string.match(ent:GetModel(), "zgo2_backmix_(%w+)")
+			local mixValue = contraband["Mixes"][getType] or 0
 			
-			notifyConfiscation(owner, contraband["Mixes"][getType], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
+			notifyConfiscation(owner, getContrabandValue(ent) + mixValue, ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
 
-			owner:addMoney(getContrabandValue(ent))
+			owner:addMoney(mixValue + getContrabandValue(ent))
 
 			return true
 		end	
 		
 		if string.find(ent:GetClass(), "zgo2_rack") then
-			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
-			local getType = string.sub(pathtrim, 10, 11)
-			
-			notifyConfiscation(owner, contraband["Pots"][getType], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
+			local getType = string.match(ent:GetModel(), "zgo2_rack(%d+)") or "default"
+			local rackValue = contraband["Racks"][getType] or 0
+			local potValue = 0
+			local weedValue = 0
 
-			owner:addMoney(getContrabandValue(ent))
+			if istable(ent.Pots) then
+				for _, pot in pairs(ent.Pots) do
+					if not IsValid(pot) then continue end
+
+					local potType = string.match(pot:GetModel() or "", "zgo2_pot(%d+)") or "default"
+					potValue = potValue + (contraband["Pots"][potType] or 0)
+
+					local plant = pot.GetPlant and pot:GetPlant()
+
+					if IsValid(plant) and plant.GetPlantID then
+						local plantID = plant:GetPlantID()
+
+						if plantID and plantID > 0 then
+							weedValue = weedValue + zgo2.Plant.GetSellValue(plantID)
+						end
+					end
+				end
+			end
+
+			local value = rackValue + potValue + weedValue + getContrabandValue(ent)
+
+			if weedValue > 0 then
+				notifyConfiscation(owner, value, ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, weedValue + potValue, "growing weed", "rack")
+			else
+				notifyConfiscation(owner, value, ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, potValue, "pots", "rack")
+			end
+
+			owner:addMoney(value)
 
 			return true
-		end	
+		end
 		
 		if string.find(ent:GetClass(), "zgo2_tent") then
-			local pathtrim = string.Split(ent:GetModel(), "models/zerochain/props_growop2/")[2]
-			local getType = string.sub(pathtrim, 10, 11)
+			local getType = string.match(ent:GetModel(), "zgo2_tent(%d+)")
+			local tentValue = contraband["WeedTents"][getType] or 0
 
 			local stored = 0
 
 			-- automatically profits attached equipment
 			for _, child in pairs(ent:GetChildren()) do
-				if child:GetClass() == "zgo2_lamp" then 
-					if string.find(child:GetModel(), "sodium") then
-						stored = stored + getContrabandValue(child)
-					end				
-					if string.find(child:GetModel(), "led") then
-						stored = stored + getContrabandValue(child)
-					end
+				if string.find(child:GetModel(), "zgo2_tent_sodium_lamp") then
+					stored = stored + getContrabandValue(child)
+					child:Remove()
+				end				
+				if string.find(child:GetModel(), "zgo2_tent_led_lamp") then
+					stored = stored + getContrabandValue(child)
+					child:Remove()
 				end
 			end
 			
 			if stored == 0 then
-				notifyConfiscation(owner, contraband["Tents"][getType], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
-				owner:addMoney(getContrabandValue(ent))
+				notifyConfiscation(owner, getContrabandValue(ent) + tentValue, ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime) 
+				owner:addMoney(getContrabandValue(ent) + tentValue)
 			else
-				notifyConfiscation(owner, contraband["Tents"][getType], ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, stored, "attached equipment", "the operating tent") 
-				owner:addMoney(getContrabandValue(ent) + stored)
+				notifyConfiscation(owner, getContrabandValue(ent) + tentValue, ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, stored, "attached equipment", "the operating tent") 
+				owner:addMoney(getContrabandValue(ent) + stored + tentValue)
 			end
 
 			return true
@@ -1025,9 +1074,10 @@ local function getValue(ent, owner)
 			local GetPrice = 0
 
 			for _, botnet in pairs(ent:GetChildren()) do
-				if not IsValid(botnet) or botnet:GetClass() ~= "zbf_bot" then continue end
-
-				GetPrice = GetPrice + ((zbf.Bot.GetPrice(botnet:GetBotID()) * botnet:GetLevel()) * contraband["Values"]["botnet_multiplier"])
+				if IsValid(botnet) and botnet:GetClass() == "zbf_bot" then
+					GetPrice = GetPrice + ((zbf.Bot.GetPrice(botnet:GetBotID()) * botnet:GetLevel()) * contraband["Values"]["botnet_multiplier"])
+					botnet:Remove()
+				end
 			end
 
 			if GetPrice > 0 then
@@ -1053,10 +1103,10 @@ local function getValue(ent, owner)
 			-- Botnets within a rack
 			if RackClass == "zbf_rack" then
 				for _, botnet in pairs(Rack:GetChildren()) do
-					if not IsValid(botnet) or botnet:GetClass() ~= "zbf_bot" then continue end
-
-					GetPrice = GetPrice + ((zbf.Bot.GetPrice(botnet:GetBotID()) * botnet:GetLevel()) * contraband["Values"]["botnet_multiplier"])
-					botnet:Remove()
+					if IsValid(botnet) and botnet:GetClass() == "zbf_bot" then
+						GetPrice = GetPrice + ((zbf.Bot.GetPrice(botnet:GetBotID()) * botnet:GetLevel()) * contraband["Values"]["botnet_multiplier"])
+						botnet:Remove()
+					end
 				end
 			else
 				GetPrice = GetPrice + ((zbf.Bot.GetPrice(ent:GetBotID()) * ent:GetLevel()) * contraband["Values"]["botnet_multiplier"])
@@ -1122,15 +1172,7 @@ function SWEP:PrimaryAttack()
 				if getValue(ent, self.Owner) then -- For entities with custom values
 					ent:Remove()
 				else
-					notifyConfiscation(
-						self:GetOwner(),
-						confiscationValue,
-						timeBonus,
-						aliveTime,
-						nil,
-						nil,
-						"destroying this illegal entity"
-					)
+					notifyConfiscation(self:GetOwner(), confiscationValue, timeBonus, aliveTime, nil, nil, "destroying this illegal entity")
 
 					self:GetOwner():addMoney(confiscationValue)
 					ent:Remove()
@@ -1146,7 +1188,7 @@ function SWEP:PrimaryAttack()
 	end
 end
 
-local ConfiscationBatonVersion = "4.2"
+local ConfiscationBatonVersion = "4.3"
 
 -- recently added console command, really only for the developer/powerusers
 -- shamelessly ported from my nightstick addon lmao
