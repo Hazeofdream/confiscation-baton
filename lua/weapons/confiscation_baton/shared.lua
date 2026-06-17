@@ -360,8 +360,8 @@ end
 -- This is all the calculations for how much a user is awarded per aliveTime of the entity
 -- Longer time alive = more money, Frequency and amount per interval is determined by config
 local function getTimeAliveBonus(ent)
-	local interval = contraband["Values"]["time_bonus_interval"] or 20
-	local value = contraband["Values"]["time_bonus_amount"] or 1800
+	local interval = contraband["Values"]["time_bonus_interval"]
+	local value = contraband["Values"]["time_bonus_amount"]
 
 	if interval <= 0 or value <= 0 then return 0 end
 	if not IsValid(ent) or not ent.GetCreationTime then return 0 end
