@@ -805,7 +805,7 @@ local function getValue(ent, owner)
 			return true
 		end
 		
-		if string.find(ent:GetClass(), "zgo2_jar")  and not string.find(ent:GetClass(), "crate") then
+		if ent:GetClass() == "zgo2_jar" then
 			local jarweed = 0
 			local WeedValue = 0
 
