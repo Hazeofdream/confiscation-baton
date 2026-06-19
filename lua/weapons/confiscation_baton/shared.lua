@@ -272,8 +272,9 @@ function loadContraband()
 
 	-- Exhibition
 	-- Not a server available yet, but will be soon :)
-	if scripted_ents.GetStored("exhib_printer") then
+	if scripted_ents.GetStored("exhib_printer") or scripted_ents.GetStored("exhib_printers") then
 		contraband["exhib_printer"] = 15000
+		contraband["exhib_printers"] = 15000
 
 		table.insert(loadedAddons, "Exhibition Printers")
 	end
@@ -322,7 +323,7 @@ if CLIENT then
     SWEP.SlotPos = 6
 end
 
-DEFINE_BASECLASS("stick_base")
+local BaseClass = baseclass.Get("stick_base")
 
 SWEP.Instructions = "Left click to seize contraband."
 SWEP.Purpose = "To keep the streets clean, or piss off criminals."
@@ -367,11 +368,27 @@ local function checkOwner(ent, owner)
 	return
 end
 
+local function getContrabandSetting(key, default)
+	local values = contraband and contraband["Values"]
+
+	if not istable(values) then
+		return default
+	end
+
+	local value = values[key]
+
+	if value == nil then
+		return default
+	end
+
+	return value
+end
+
 -- This is all the calculations for how much a user is awarded per aliveTime of the entity
 -- Longer time alive = more money, Frequency and amount per interval is determined by config
 local function getTimeAliveBonus(ent)
-	local interval = contraband["Values"]["time_bonus_interval"]
-	local value = contraband["Values"]["time_bonus_amount"]
+	local interval = getContrabandSetting("time_bonus_interval", 15)
+	local value = getContrabandSetting("time_bonus_amount", 2800)
 
 	if interval <= 0 or value <= 0 then return 0 end
 	if not IsValid(ent) or not ent.GetCreationTime then return 0 end
@@ -382,7 +399,7 @@ local function getTimeAliveBonus(ent)
 end
 
 local function getContrabandValue(ent)
-	local baseValue = contraband[ent:GetClass()]
+	local baseValue = contraband[ent:GetClass()] or 0
 
 	return baseValue + getTimeAliveBonus(ent)
 end
@@ -563,11 +580,11 @@ local function getValue(ent, owner)
 		if string.find(ent:GetClass(), "sprinter_rack") then 
 			local money = 0
 			local printervalue = 0
+			local printerMultiplier = getContrabandSetting("printer_multiplier", 5)
 			for _, printer in pairs(ent.printers) do
 				if IsValid(printer) then
-					money = money + printer:GetWithdrawAmount() * contraband["Values"]["printer_multiplier"]
+					money = money + printer:GetWithdrawAmount() * printerMultiplier
 					printervalue = printervalue + getContrabandValue(printer)
-					-- printers removed after calculations complete
 					printer:Remove()
 					-- p:OnWithdrawn(ply, true) -- We dont want to do this or it logs as a withdrawn, inb4 "HE WITHDREW FROM THE PRINTERS! CORRUPTION!"
 				end
@@ -600,7 +617,7 @@ local function getValue(ent, owner)
 
 	-- Brick's Gang Printer
 	if string.find(ent:GetClass(), "bricks_server_gangprinter") then 
-		local money = ent:GetHolding() * contraband["Values"]["printer_multiplier"]
+		local money = ent:GetHolding() * getContrabandSetting("printer_multiplier", 5)
 		
 		if money == 0 then
 			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
@@ -615,34 +632,53 @@ local function getValue(ent, owner)
 
 	-- Exhibition's Printers
 	if string.find(ent:GetClass(), "exhib_printer") then 
-		local money = ent:GetMoney() * contraband["Values"]["printer_multiplier"]
-		local printercount = math.max(1, ent:GetSlots())
+		local multiplier = getContrabandSetting("printer_multiplier", 5)
+
+		local moneyRaw = 0
+		if ent.GetMoney then
+			local ok, value = pcall(ent.GetMoney, ent)
+			if ok and isnumber(value) then
+				moneyRaw = math.max(value, 0)
+			end
+		end
+
+		local slotCount = 1
+		if ent.GetSlots then
+			local ok, value = pcall(ent.GetSlots, ent)
+			if ok and isnumber(value) then
+				slotCount = math.max(1, value)
+			end
+		end
+
+		local money = moneyRaw * multiplier
+		local printerValue = getContrabandValue(ent) * slotCount
 		
 		if money == 0 then
 			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
 		else
-			notifyConfiscation(owner, getContrabandValue(ent) * printercount, ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, money, "printed money")
+			notifyConfiscation(owner, printerValue, ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, money, "printed money")
 		end
 
-		owner:addMoney(money + (getContrabandValue(ent) * printercount))
+		owner:addMoney(money + printerValue)
 	
 		return true
 	end
 
 	-- Zero's Yeastbeast
 	if string.sub(ent:GetClass(), 1, 4) == "zyb_" then
-		if string.find(ent:GetClass(), "zyb_jar") and not string.find(ent:GetClass(), "pack") and not string.find(ent:GetClass(), "crate") then -- SCREW YOU ZERO, STOP HAVING SIMILARLY NAMED ITEMS
+		if ent:GetClass() == "zyb_jar" then
+			local moonshineMultiplier = getContrabandSetting("moonshine_multiplier", 42)
 			if ent:GetMoonShine() == 0 then return false
 			else 
-				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, ent:GetMoonShine() * contraband["Values"]["moonshine_multiplier"], "jar value") 
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, ent:GetMoonShine() * moonshineMultiplier, "jar value") 
 			end
-			owner:addMoney(ent:GetMoonShine() * contraband["Values"]["moonshine_multiplier"] + getContrabandValue(ent))
+			owner:addMoney(ent:GetMoonShine() * moonshineMultiplier + getContrabandValue(ent))
 
 			return true
 		end	
 		
 		if string.find(ent:GetClass(), "zyb_jarcrate") then
-			local MegaLongFormula = (zyb.config.Jar.MoonshineAmount * ent:GetJarCount()) * contraband["Values"]["moonshine_multiplier"]
+			local MegaLongFormula = (zyb.config.Jar.MoonshineAmount * ent:GetJarCount()) * getContrabandSetting("moonshine_multiplier", 42)
 
 			if ent:GetJarCount() == 0 then return false
 			else 
@@ -1072,10 +1108,11 @@ local function getValue(ent, owner)
 	if string.sub(ent:GetClass(), 1, 4) == "zbf_" then
 		if string.find(ent:GetClass(), "zbf_rack") then
 			local GetPrice = 0
+			local botnetMultiplier = getContrabandSetting("botnet_multiplier", 2)
 
 			for _, botnet in pairs(ent:GetChildren()) do
 				if IsValid(botnet) and botnet:GetClass() == "zbf_bot" then
-					GetPrice = GetPrice + ((zbf.Bot.GetPrice(botnet:GetBotID()) * botnet:GetLevel()) * contraband["Values"]["botnet_multiplier"])
+					GetPrice = GetPrice + ((zbf.Bot.GetPrice(botnet:GetBotID()) * botnet:GetLevel()) * botnetMultiplier)
 					botnet:Remove()
 				end
 			end
@@ -1095,6 +1132,7 @@ local function getValue(ent, owner)
 		if string.find(ent:GetClass(), "zbf_bot") then
 			local GetPrice = 0
 			local Rack, RackClass = nil, nil
+			local botnetMultiplier = getContrabandSetting("botnet_multiplier", 2)
 
 			success, Rack, RackClass = pcall(function()
 				return ent:GetParent(), ent:GetParent():GetClass()
@@ -1104,12 +1142,12 @@ local function getValue(ent, owner)
 			if RackClass == "zbf_rack" then
 				for _, botnet in pairs(Rack:GetChildren()) do
 					if IsValid(botnet) and botnet:GetClass() == "zbf_bot" then
-						GetPrice = GetPrice + ((zbf.Bot.GetPrice(botnet:GetBotID()) * botnet:GetLevel()) * contraband["Values"]["botnet_multiplier"])
+						GetPrice = GetPrice + ((zbf.Bot.GetPrice(botnet:GetBotID()) * botnet:GetLevel()) * botnetMultiplier)
 						botnet:Remove()
 					end
 				end
 			else
-				GetPrice = GetPrice + ((zbf.Bot.GetPrice(ent:GetBotID()) * ent:GetLevel()) * contraband["Values"]["botnet_multiplier"])
+				GetPrice = GetPrice + ((zbf.Bot.GetPrice(ent:GetBotID()) * ent:GetLevel()) * botnetMultiplier)
 			end
 
 			if RackClass == "zbf_rack" then
@@ -1139,6 +1177,10 @@ function SWEP:PrimaryAttack()
     end
 	
 	if CLIENT then return end
+
+	if not istable(contraband["Values"]) then
+		loadContraband()
+	end
 	
 	-- Do entity check
     local batonTrace = {
@@ -1188,7 +1230,7 @@ function SWEP:PrimaryAttack()
 	end
 end
 
-local ConfiscationBatonVersion = "4.3"
+local ConfiscationBatonVersion = "4.4"
 
 -- recently added console command, really only for the developer/powerusers
 -- shamelessly ported from my nightstick addon lmao
