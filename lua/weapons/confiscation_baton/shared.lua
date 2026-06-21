@@ -228,6 +228,7 @@ function loadContraband()
 	end
 
 	-- Cocaine Factory
+	-- From Crap-Head, not to be confused with the Opium factory from nykez
 	if scripted_ents.GetStored("cocaine_extractor") then
 		contraband["cocaine_baking_soda"] = 50
 		contraband["cocaine_water"] = 75
@@ -304,6 +305,21 @@ function loadContraband()
 		contraband["sh_detector_jammer"] = 3000
 
 		table.insert(loadedAddons, "Shenisis' Entities")
+	end
+
+	-- Opium Factory by nykez
+	if scripted_ents.GetStored("the_opium_barrel") then
+		contraband["the_opium_barrel"] = 2250,
+		contraband["the_opium_bottle"] = 450,
+		contraband["the_opium_codeine"] = 750,
+		contraband["the_opium_gas"] = 3000,
+		contraband["the_opium_heater"] = 7500,
+		contraband["the_opium_packer"] = 1500,
+		contraband["the_opium_papaverine"] = 900,
+		contraband["the_opium_sulfate"] = 1050,
+		contraband["the_opium_water"] = 450,
+
+		table.insert(loadedAddons, "Opium Factory")
 	end
 
 	if CLIENT then return end
@@ -1230,7 +1246,7 @@ function SWEP:PrimaryAttack()
 	end
 end
 
-local ConfiscationBatonVersion = "4.4"
+local ConfiscationBatonVersion = "4.45"
 
 -- recently added console command, really only for the developer/powerusers
 -- shamelessly ported from my nightstick addon lmao
