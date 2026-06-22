@@ -19,6 +19,10 @@ function loadContraband()
 		-- this looks like alot until you print moonshine's predicted values
 		["moonshine_multiplier"] = 42,
 
+		-- a full barrel (way past what you actually require) is only 4k lmao
+		-- believe it or not, but for an optimal barrel, this is still only around $1,200
+		["opium_multiplier"] = 400,
+
 		["botnet_multiplier"] = 2,
 		
 		-- bonus payout added for every x seconds an entity exists
@@ -309,15 +313,16 @@ function loadContraband()
 
 	-- Opium Factory by nykez
 	if scripted_ents.GetStored("the_opium_barrel") then
-		contraband["the_opium_barrel"] = 2250,
-		contraband["the_opium_bottle"] = 450,
-		contraband["the_opium_codeine"] = 750,
-		contraband["the_opium_gas"] = 3000,
-		contraband["the_opium_heater"] = 7500,
-		contraband["the_opium_packer"] = 1500,
-		contraband["the_opium_papaverine"] = 900,
-		contraband["the_opium_sulfate"] = 1050,
-		contraband["the_opium_water"] = 450,
+		contraband["the_opium_barrel"] = 2250
+		contraband["the_opium_bottle"] = 450
+		contraband["the_opium_codeine"] = 750
+		contraband["the_opium_gas"] = 3000
+		contraband["the_opium_heater"] = 7500
+		contraband["the_opium_packer"] = 1500
+		contraband["the_opium_packed"] = 1500
+		contraband["the_opium_papaverine"] = 900
+		contraband["the_opium_sulfate"] = 1050
+		contraband["the_opium_water"] = 450
 
 		table.insert(loadedAddons, "Opium Factory")
 	end
@@ -732,7 +737,6 @@ local function getValue(ent, owner)
 	end
 	
 	-- Zero's GrowOP 2 uses models to differentiate instead of classes -_-
-	
 	if string.sub(ent:GetClass(), 1, 5) == "zgo2_" then
 		if string.find(ent:GetClass(), "zgo2_weedbranch") then
 			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, zgo2.Plant.GetSellValue(ent:GetPlantID()), "weed") 
@@ -1120,6 +1124,87 @@ local function getValue(ent, owner)
 		end
 	end
 
+	-- The Opium Factory
+	if string.sub(ent:GetClass(), 1, 9) == "the_opium" then
+		if ent:GetClass() == "the_opium_barrel" then
+			local storedValue = 0
+
+			-- Sum ingredient values using getters
+			local getters = {"Getcodeine", "Getpapaverine", "Getsulfate", "Getwater"}
+			for _, func in ipairs(getters) do
+				storedValue = storedValue + (ent[func](ent) or 0)
+			end
+
+			storedValue = storedValue * contraband["Values"]["opium_multiplier"]
+
+			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, storedValue, "opium ingredients")
+
+			owner:addMoney(getContrabandValue(ent) + storedValue)
+
+			return true
+		end
+
+		if ent:GetClass() == "the_opium_packer" or ent:GetClass() == "the_opium_packed" then
+			local value = 0
+			local label = ""
+
+			if ent:GetClass() == "the_opium_packer" then
+				value = (ent:Getprice() * 2) or 0
+				label = "opium bottles"
+			else
+				value = (ent:Getprice() * 2) or 0
+				label = "packed opium"
+			end
+
+			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, value, label)
+
+			owner:addMoney(getContrabandValue(ent) + value)
+
+			return true
+		end
+
+		if ent:GetClass() == "the_opium_bottle" then
+			local bottleValue = 0
+
+			if ent:GetValue() == "Low" then
+				bottleValue = opium.ahshop.LowOpiumPrice
+			elseif ent:GetValue() == "Medium" then
+				bottleValue = opium.ahshop.mediumOpiumPrice
+			elseif ent:GetValue() == "Premium" then
+				bottleValue = opium.ahshop.PremiumOpiumPrice
+			end
+
+			if bottleValue > 0 then
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, bottleValue, "bottle ingredients")
+			else
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
+			end
+
+			owner:addMoney(getContrabandValue(ent) + bottleValue)
+
+			return true
+		end
+
+		if ent:GetClass() == "the_opium_heater" then
+			local gasValue = 0
+
+			-- check if it has a gas canister attached
+			if IsValid(ent.gas) then
+				gasValue = getContrabandValue(ent.gas)
+			end
+
+			if gasValue > 0 then
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, gasValue, "attached equipment", "the heater")
+			else
+				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
+			end
+
+			owner:addMoney(getContrabandValue(ent) + gasValue)
+
+			return true
+		end
+	end
+
 	-- Zero's Botnet
 	if string.sub(ent:GetClass(), 1, 4) == "zbf_" then
 		if string.find(ent:GetClass(), "zbf_rack") then
@@ -1228,7 +1313,7 @@ function SWEP:PrimaryAttack()
 				ent.ConfiscationValue = confiscationValue
 
 				if getValue(ent, self.Owner) then -- For entities with custom values
-					ent:Remove()
+					--ent:Remove()
 				else
 					notifyConfiscation(self:GetOwner(), confiscationValue, timeBonus, aliveTime, nil, nil, "destroying this illegal entity")
 
@@ -1246,7 +1331,7 @@ function SWEP:PrimaryAttack()
 	end
 end
 
-local ConfiscationBatonVersion = "4.45"
+local ConfiscationBatonVersion = "4.5"
 
 -- recently added console command, really only for the developer/powerusers
 -- shamelessly ported from my nightstick addon lmao
