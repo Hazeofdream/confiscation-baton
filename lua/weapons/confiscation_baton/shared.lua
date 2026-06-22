@@ -1135,7 +1135,7 @@ local function getValue(ent, owner)
 				storedValue = storedValue + (ent[func](ent) or 0)
 			end
 
-			storedValue = storedValue * contraband["Values"]["opium_multiplier"]
+			storedValue = storedValue * getContrabandSetting("opium_multiplier", 400)
 
 			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, storedValue, "opium ingredients")
 
