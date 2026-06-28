@@ -14,7 +14,7 @@ function loadContraband()
 	contraband["Values"] = {
 		-- controls how much the actual printer values get multiplied
 		-- we multiply to encourage hitting hard targets, only giving the base amount of the printer would discorage pd raids as it would be more profitable to print yourself.
-		["printer_multiplier"] = 5,
+		["printer_multiplier"] = 1.5,
 		
 		-- this looks like alot until you print moonshine's predicted values
 		["moonshine_multiplier"] = 42,
