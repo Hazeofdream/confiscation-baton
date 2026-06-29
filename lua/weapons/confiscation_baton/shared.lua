@@ -172,6 +172,7 @@ function loadContraband()
 		contraband["zmlab2_machine_ventilation"] = 1000
 		contraband["zmlab2_storage"] = 1000
 		contraband["zmlab2_table"] = 1000
+		contraband["zmlab2_item_methylamine"] = 8000
 
 		contraband["zmlab2_item_meth"] = 250
 		contraband["zmlab2_item_crate"] = 500
