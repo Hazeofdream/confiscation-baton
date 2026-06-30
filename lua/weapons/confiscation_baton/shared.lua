@@ -31,7 +31,7 @@ function loadContraband()
 		-- 2) The longer an entity exist, the more likelihood of the base being extremely tough to crack, so we need to make sure that it's worth the risk of cracking a tough base, and
 		-- 3) We dont want to make the time scale too harshly towards the end or it encourages police to wait intentionally, and encouraging non-interaction is detrimental to roleplay.
 		["time_bonus_interval"] = 15,
-		["time_bonus_amount"] = 2800
+		["time_bonus_amount"] = 2200
 	}
 
 	-- no servers run these but it DOES exist
