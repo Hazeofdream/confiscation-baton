@@ -256,6 +256,7 @@ function loadContraband()
 		contraband["cocaine_stove"] = 1500
 		contraband["cocaine_pack"] = 2500
 		contraband["cocaine_battery"] = 300
+		contraband["cocaine_cooking_pot"] = 150
 
 		table.insert(loadedAddons, "Cocaine Factory")
 	end
@@ -398,7 +399,7 @@ local function checkOwner(ent, owner)
 		if DEBUG then 
 			return false 
 		else 
-			return true 
+			return true
 		end
 	end
 
@@ -1212,16 +1213,8 @@ local function getValue(ent, owner)
 		end
 
 		if ent:GetClass() == "the_opium_packer" or ent:GetClass() == "the_opium_packed" then
-			local value = 0
-			local label = ""
-
-			if ent:GetClass() == "the_opium_packer" then
-				value = (ent:Getprice() * 2) or 0
-				label = "opium bottles"
-			else
-				value = (ent:Getprice() * 2) or 0
-				label = "packed opium"
-			end
+			local value = (ent:Getprice() * 2) or 0
+			local label = ent:GetClass() == "the_opium_packer" and "opium bottles" or "packed opium"
 
 			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, value, label)
 
@@ -1231,21 +1224,16 @@ local function getValue(ent, owner)
 		end
 
 		if ent:GetClass() == "the_opium_bottle" then
-			local bottleValue = 0
+			local bottlePrices = {
+				Low = opium.ahshop.LowOpiumPrice,
+				Medium = opium.ahshop.mediumOpiumPrice,
+				Premium = opium.ahshop.PremiumOpiumPrice,
+			}
 
-			if ent:GetValue() == "Low" then
-				bottleValue = opium.ahshop.LowOpiumPrice
-			elseif ent:GetValue() == "Medium" then
-				bottleValue = opium.ahshop.mediumOpiumPrice
-			elseif ent:GetValue() == "Premium" then
-				bottleValue = opium.ahshop.PremiumOpiumPrice
-			end
+			local bottleValue = bottlePrices[ent:GetValue()] or 0
+			local label = bottleValue > 0 and "bottle ingredients" or nil
 
-			if bottleValue > 0 then
-				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, bottleValue, "bottle ingredients")
-			else
-				notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
-			end
+			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, bottleValue, label)
 
 			owner:addMoney(getContrabandValue(ent) + bottleValue)
 
@@ -1388,8 +1376,6 @@ function SWEP:PrimaryAttack()
 						-- Ban only printer type entities
 						if string.find(item, "printer") then
 							AddPurchaseHold(result, item)
-						else
-							DarkRP.notify(self:GetOwner(), 1, 4, "You tried, but you own this entity!")
 						end
 					end
 
