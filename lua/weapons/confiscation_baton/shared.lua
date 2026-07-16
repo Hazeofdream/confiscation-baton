@@ -21,10 +21,6 @@ function loadContraband()
 		-- Most server's dont want to rely on police users storing mass printers, regardless of the legal justification of "seizing contraband"
 		-- So this is a compromise to make being raided by police a punishment, and not just "oh, the police raided me, time to put my printers back down"
 		["HoldTime"] = 1200,
-
-		-- controls how much the actual printer values get multiplied
-		-- we multiply to encourage hitting hard targets, only giving the base amount of the printer would discorage pd raids as it would be more profitable to print yourself.
-		["printer_multiplier"] = 1.5,
 		
 		-- this looks like alot until you print moonshine's predicted values
 		["moonshine_multiplier"] = 42,
@@ -669,10 +665,9 @@ local function getValue(ent, owner)
 		if string.find(ent:GetClass(), "sprinter_rack") then 
 			local money = 0
 			local printervalue = 0
-			local printerMultiplier = getContrabandSetting("printer_multiplier", 1.5)
 			for _, printer in pairs(ent.printers) do
 				if IsValid(printer) then
-					money = money + printer:GetWithdrawAmount() * printerMultiplier
+					money = money + printer:GetWithdrawAmount()
 					printervalue = printervalue + getContrabandValue(printer)
 					printer:Remove()
 					-- p:OnWithdrawn(ply, true) -- We dont want to do this or it logs as a withdrawn, inb4 "HE WITHDREW FROM THE PRINTERS! CORRUPTION!"
@@ -706,7 +701,7 @@ local function getValue(ent, owner)
 
 	-- Brick's Gang Printer
 	if string.find(ent:GetClass(), "bricks_server_gangprinter") then 
-		local money = ent:GetHolding() * getContrabandSetting("printer_multiplier", 5)
+		local money = ent:GetHolding()
 		
 		if money == 0 then
 			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
@@ -721,13 +716,11 @@ local function getValue(ent, owner)
 
 	-- Exhibition's Printers
 	if string.find(ent:GetClass(), "exhib_printer") then 
-		local multiplier = getContrabandSetting("printer_multiplier", 1.5)
-
-		local moneyRaw = 0
+		local money = 0
 		if ent.GetMoney then
 			local ok, value = pcall(ent.GetMoney, ent)
 			if ok and isnumber(value) then
-				moneyRaw = math.max(value, 0)
+				money = math.max(value, 0)
 			end
 		end
 
@@ -739,8 +732,7 @@ local function getValue(ent, owner)
 			end
 		end
 
-		local money = moneyRaw * multiplier
-		local printerValue = getContrabandValue(ent) * slotCount
+		local printerValue = math.min(getContrabandValue(ent), 2000000) * slotCount
 		
 		if money == 0 then
 			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
