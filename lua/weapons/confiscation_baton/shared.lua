@@ -6,12 +6,22 @@ AddCSLuaFile()
 -- otherwise PLEASE use https://steamcommunity.com/workshop/filedetails/discussion/2981130069/3834298194196734223/
 
 contraband = contraband or {}
+PurchaseHold = PurchaseHold or {}
+
+-- Disables ownership checks and disables killing the entities
+local DEBUG = false
 
 -- Only add items that actually exist on the server
 function loadContraband()
 	local loadedAddons = {}
 
 	contraband["Values"] = {
+		-- Controls how long a player cannot purchase this entity post-confiscation
+		-- This exist because criminal users can simply steal the entities for indefinite periods of time
+		-- Most server's dont want to rely on police users storing mass printers, regardless of the legal justification of "seizing contraband"
+		-- So this is a compromise to make being raided by police a punishment, and not just "oh, the police raided me, time to put my printers back down"
+		["HoldTime"] = 1200,
+
 		-- controls how much the actual printer values get multiplied
 		-- we multiply to encourage hitting hard targets, only giving the base amount of the printer would discorage pd raids as it would be more profitable to print yourself.
 		["printer_multiplier"] = 1.5,
@@ -31,7 +41,7 @@ function loadContraband()
 		-- 2) The longer an entity exist, the more likelihood of the base being extremely tough to crack, so we need to make sure that it's worth the risk of cracking a tough base, and
 		-- 3) We dont want to make the time scale too harshly towards the end or it encourages police to wait intentionally, and encouraging non-interaction is detrimental to roleplay.
 		["time_bonus_interval"] = 15,
-		["time_bonus_amount"] = 2200
+		["time_bonus_amount"] = 2000
 	}
 
 	-- no servers run these but it DOES exist
@@ -172,7 +182,6 @@ function loadContraband()
 		contraband["zmlab2_machine_ventilation"] = 1000
 		contraband["zmlab2_storage"] = 1000
 		contraband["zmlab2_table"] = 1000
-		contraband["zmlab2_item_methylamine"] = 3000
 
 		contraband["zmlab2_item_meth"] = 250
 		contraband["zmlab2_item_crate"] = 500
@@ -246,6 +255,7 @@ function loadContraband()
 		contraband["cocaine_leaves"] = 50
 		contraband["cocaine_stove"] = 1500
 		contraband["cocaine_pack"] = 2500
+		contraband["cocaine_battery"] = 300
 
 		table.insert(loadedAddons, "Cocaine Factory")
 	end
@@ -376,7 +386,8 @@ function SWEP:Initialize()
 end
 
 
--- The darkrp function Getowning_ent does not work on certain things like zero's weed, so we filter that.
+-- This Handles ownership checks to prevent user's confiscating their own printers
+-- If the function fails, the entity doesn't support DarkRP's Getowning_ent NW Flag
 
 local function checkOwner(ent, owner)
 	local success, result = pcall(function()
@@ -384,12 +395,17 @@ local function checkOwner(ent, owner)
 	end)
 
 	if success and result then
-		return true
+		if DEBUG then 
+			return false 
+		else 
+			return true 
+		end
 	end
 
 	return
 end
 
+-- Fallback function to prevent errors grabbing settings
 local function getContrabandSetting(key, default)
 	local values = contraband and contraband["Values"]
 
@@ -404,6 +420,42 @@ local function getContrabandSetting(key, default)
 	end
 
 	return value
+end
+
+-- Function to add a purchase hold for a specific player and entity class
+function AddPurchaseHold(ply, class)
+	if not IsValid(ply) or not class then return end
+
+	local steamid = ply:SteamID64()
+	local holdTime = getContrabandSetting("HoldTime", 0)
+
+	PurchaseHold[steamid] = PurchaseHold[steamid] or {}
+
+	PurchaseHold[steamid][class] = CurTime() + holdTime
+end
+
+-- Helper function to check if a player is currently under a purchase hold for a specific entity class
+function IsPurchaseHeld(ply, class)
+	if not IsValid(ply) or not class then return true end
+
+	local playerHolds = PurchaseHold[ply:SteamID64()]
+	if not playerHolds then return true end
+
+	local expires = playerHolds[class]
+	if not expires then return true end
+
+	-- Expired, remove it.
+	if expires <= CurTime() then
+		playerHolds[class] = nil
+
+		if next(playerHolds) == nil then
+			PurchaseHold[ply:SteamID64()] = nil
+		end
+
+		return true
+	end
+
+	return false
 end
 
 -- This is all the calculations for how much a user is awarded per aliveTime of the entity
@@ -450,6 +502,20 @@ local function formatAliveTime(seconds)
 
 	return str
 end
+
+-- Hook to prevent barred users from purchasing contraband entities while under a purchase hold
+hook.Add("canBuyCustomEntity", "ConfiscationPurchaseHold", function(ply, entityTable)
+    local allowed = IsPurchaseHeld(ply, entityTable.ent)
+
+    if not allowed then
+        local expires = PurchaseHold[ply:SteamID64()][entityTable.ent]
+        local remaining = math.ceil(expires - CurTime())
+
+        DarkRP.notify(ply, 1, 4, "The Police Confiscated your printers and must wait ".. formatAliveTime(remaining) .. " before purchasing again.")
+
+        return false
+    end
+end)
 
 local function notifyConfiscation(owner, baseAmount, timeBonus, aliveTime, extraAmount, extraLabel, contextLabel)
 	local message = "You received " .. DarkRP.formatMoney(baseAmount)
@@ -602,7 +668,7 @@ local function getValue(ent, owner)
 		if string.find(ent:GetClass(), "sprinter_rack") then 
 			local money = 0
 			local printervalue = 0
-			local printerMultiplier = getContrabandSetting("printer_multiplier", 5)
+			local printerMultiplier = getContrabandSetting("printer_multiplier", 1.5)
 			for _, printer in pairs(ent.printers) do
 				if IsValid(printer) then
 					money = money + printer:GetWithdrawAmount() * printerMultiplier
@@ -619,7 +685,7 @@ local function getValue(ent, owner)
 			end
 
 			owner:addMoney(money + printervalue + getContrabandValue(ent))
-		
+
 			return true
 		end	
 
@@ -654,7 +720,7 @@ local function getValue(ent, owner)
 
 	-- Exhibition's Printers
 	if string.find(ent:GetClass(), "exhib_printer") then 
-		local multiplier = getContrabandSetting("printer_multiplier", 5)
+		local multiplier = getContrabandSetting("printer_multiplier", 1.5)
 
 		local moneyRaw = 0
 		if ent.GetMoney then
@@ -1136,7 +1202,7 @@ local function getValue(ent, owner)
 				storedValue = storedValue + (ent[func](ent) or 0)
 			end
 
-			storedValue = storedValue * getContrabandSetting("opium_multiplier", 400)
+			storedValue = storedValue * contraband["Values"]["opium_multiplier"]
 
 			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, storedValue, "opium ingredients")
 
@@ -1189,7 +1255,7 @@ local function getValue(ent, owner)
 		if ent:GetClass() == "the_opium_heater" then
 			local gasValue = 0
 
-			-- check if it has a gas canister attached
+			-- check if it has a gas canister
 			if IsValid(ent.gas) then
 				gasValue = getContrabandValue(ent.gas)
 			end
@@ -1314,12 +1380,38 @@ function SWEP:PrimaryAttack()
 				ent.ConfiscationValue = confiscationValue
 
 				if getValue(ent, self.Owner) then -- For entities with custom values
+					local success, owner = pcall(function()
+						return ent:Getowning_ent()
+					end)
+
+					if success then
+						-- Ban only printer type entities
+						if string.find(item, "printer") then
+							AddPurchaseHold(result, item)
+						else
+							DarkRP.notify(self:GetOwner(), 1, 4, "You tried, but you own this entity!")
+						end
+					end
+
 					ent:Remove()
 				else
 					notifyConfiscation(self:GetOwner(), confiscationValue, timeBonus, aliveTime, nil, nil, "destroying this illegal entity")
 
+					local success, owner = pcall(function()
+						return ent:Getowning_ent()
+					end)
+
+					if success then
+						-- Ban only printer type entities
+						if string.find(item, "printer") then
+							AddPurchaseHold(owner, item)
+						end
+					end
+
 					self:GetOwner():addMoney(confiscationValue)
-					ent:Remove()
+					if not DEBUG then
+						ent:Remove()
+					end
 				end
 			end
 
@@ -1331,23 +1423,3 @@ function SWEP:PrimaryAttack()
 		self.Owner:EmitSound(self.Hit[math.random(#self.Hit)])
 	end
 end
-
-local ConfiscationBatonVersion = "4.5"
-
--- recently added console command, really only for the developer/powerusers
--- shamelessly ported from my nightstick addon lmao
-concommand.Add("confiscationbaton_info", function()
-	local InfoTable = {
-		"https://steamcommunity.com/sharedfiles/filedetails/?id=2981130069 created by Haze_of_dream",
-		"",
-		"Contact at: ",
-		"STEAM_0:1:75838598",
-		"https:/steamcommunity.com/id/Haze_of_dream",
-		"",
-		string.format("Confiscation Baton Version: %s", ConfiscationBatonVersion)
-	}
-	
-	for _, msg in pairs(InfoTable) do
-		print(msg)
-	end
-end)
