@@ -424,7 +424,7 @@ function AddPurchaseHold(ply, class)
 	if not IsValid(ply) or not class then return end
 
 	local steamid = ply:SteamID64()
-	local holdTime = getContrabandSetting("HoldTime", 0)
+	local holdTime = getContrabandSetting("HoldTime", 1200)
 
 	PurchaseHold[steamid] = PurchaseHold[steamid] or {}
 
