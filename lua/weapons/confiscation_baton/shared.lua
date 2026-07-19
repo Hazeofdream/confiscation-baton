@@ -20,7 +20,7 @@ function loadContraband()
 		-- This exist because criminal users can simply steal the entities for indefinite periods of time
 		-- Most server's dont want to rely on police users storing mass printers, regardless of the legal justification of "seizing contraband"
 		-- So this is a compromise to make being raided by police a punishment, and not just "oh, the police raided me, time to put my printers back down"
-		["HoldTime"] = 600,
+		["HoldTime"] = 1200,
 		
 		-- this looks like alot until you print moonshine's predicted values
 		["moonshine_multiplier"] = 42,
