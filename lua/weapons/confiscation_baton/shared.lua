@@ -335,6 +335,12 @@ function loadContraband()
 		table.insert(loadedAddons, "Opium Factory")
 	end
 
+	if scripted_ents.GetStored("pvault_moneybag") then
+		contraband["pvault_moneybag"] = 0
+
+		table.insert(loadedAddons, "pVault")
+	end
+
 	if CLIENT then return end
 
 	print("[Confiscation Baton] Loaded Contraband support for " .. #loadedAddons .. " addons:")
@@ -1309,6 +1315,15 @@ local function getValue(ent, owner)
 
 			return true
 		end
+	end
+
+	if ent:GetClass() == "pvault_moneybag" then
+		local policeShare = getContrabandValue(ent) + (ent:GetValue() * 2)
+
+		notifyConfiscation(owner, policeShare, ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, nil, nil, "a bank bag")
+		owner:addMoney(policeShare)
+
+		return true
 	end
 end
 
