@@ -465,7 +465,7 @@ end
 -- Longer time alive = more money, Frequency and amount per interval is determined by config
 local function getTimeAliveBonus(ent)
 	local interval = getContrabandSetting("time_bonus_interval", 15)
-	local value = getContrabandSetting("time_bonus_amount", 2800)
+	local value = getContrabandSetting("time_bonus_amount", 2000)
 
 	if interval <= 0 or value <= 0 then return 0 end
 	if not IsValid(ent) or not ent.GetCreationTime then return 0 end
@@ -1317,11 +1317,63 @@ local function getValue(ent, owner)
 		end
 	end
 
+	-- pVault support
+	-- Confiscated bags are returned to the vault with a reward
 	if ent:GetClass() == "pvault_moneybag" then
 		local policeShare = getContrabandValue(ent) + (ent:GetValue() * 2)
 
-		notifyConfiscation(owner, policeShare, ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, nil, nil, "a bank bag")
-		owner:addMoney(policeShare)
+		local vaults = ents.FindByClass("pvault_door")
+		local availableVault = nil
+
+		-- If multiple vaults exist, find the nearest vault that isn't full.
+		if #vaults > 1 then
+			local nearestDistance = math.huge
+
+			for _, vault in ipairs(vaults) do
+				if IsValid(vault) then
+					local maxBags = tonumber(vault["data"]["general"]["bagCount"])
+
+					local currentBags = tonumber(vault:GetMoneybags()) or 0
+
+					if maxBags and currentBags < maxBags then
+						local distance = ent:GetPos():DistToSqr(vault:GetPos())
+
+						if distance < nearestDistance then
+							nearestDistance = distance
+							availableVault = vault
+						end
+					end
+				end
+			end
+		end
+
+		-- If only one vault exists, directly check its capacity.
+		if #vaults == 1  then
+			local vault = vaults[1]
+
+			local maxBags = tonumber(vault["data"]["general"]["bagCount"])
+
+			local currentBags = tonumber(vault:GetMoneybags()) or 0
+
+			if maxBags and currentBags < maxBags then
+				availableVault = vault
+			end
+
+			ent:Remove()
+		end
+
+		-- Add the confiscated bag to the available vault.
+		if IsValid(availableVault) then
+			local currentBags = availableVault:GetMoneybags() or 0
+
+			availableVault:SetMoneybags(currentBags + 1)
+
+			owner:addMoney(policeShare)
+			notifyConfiscation(owner, policeShare, ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, nil, nil, "returning a bag to the vault")
+		else
+			owner:addMoney(policeShare)
+			notifyConfiscation(owner, policeShare, ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, nil, nil, "a bank bag")
+		end
 
 		return true
 	end
