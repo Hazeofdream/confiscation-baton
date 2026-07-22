@@ -6,7 +6,7 @@ AddCSLuaFile()
 -- otherwise PLEASE use https://steamcommunity.com/workshop/filedetails/discussion/2981130069/3834298194196734223/
 
 contraband = contraband or {}
-PurchaseHold = PurchaseHold or {}
+PurchaseBanned = PurchaseBanned or {}
 
 -- Disables ownership checks and disables killing the entities
 local DEBUG = false
@@ -39,6 +39,9 @@ function loadContraband()
 		["time_bonus_interval"] = 15,
 		["time_bonus_amount"] = 2000
 	}
+
+	-- i am aware this looks funny, but the reason is confiscating bags off players directly
+	contraband["player"] = 0
 
 	-- no servers run these but it DOES exist
 	contraband["money_printer"] = 2000
@@ -426,22 +429,22 @@ local function getContrabandSetting(key, default)
 end
 
 -- Function to add a purchase hold for a specific player and entity class
-function AddPurchaseHold(ply, class)
+function AddPurchaseBan(ply, class)
 	if not IsValid(ply) or not class then return end
 
 	local steamid = ply:SteamID64()
 	local holdTime = getContrabandSetting("HoldTime", 1200)
 
-	PurchaseHold[steamid] = PurchaseHold[steamid] or {}
+	PurchaseBanned[steamid] = PurchaseBanned[steamid] or {}
 
-	PurchaseHold[steamid][class] = CurTime() + holdTime
+	PurchaseBanned[steamid][class] = CurTime() + holdTime
 end
 
 -- Helper function to check if a player is currently under a purchase hold for a specific entity class
-function IsPurchaseHeld(ply, class)
+function IsPurchaseBanned(ply, class)
 	if not IsValid(ply) or not class then return true end
 
-	local playerHolds = PurchaseHold[ply:SteamID64()]
+	local playerHolds = PurchaseBanned[ply:SteamID64()]
 	if not playerHolds then return true end
 
 	local expires = playerHolds[class]
@@ -452,7 +455,7 @@ function IsPurchaseHeld(ply, class)
 		playerHolds[class] = nil
 
 		if next(playerHolds) == nil then
-			PurchaseHold[ply:SteamID64()] = nil
+			PurchaseBanned[ply:SteamID64()] = nil
 		end
 
 		return true
@@ -507,11 +510,11 @@ local function formatAliveTime(seconds)
 end
 
 -- Hook to prevent barred users from purchasing contraband entities while under a purchase hold
-hook.Add("canBuyCustomEntity", "ConfiscationPurchaseHold", function(ply, entityTable)
-    local allowed = IsPurchaseHeld(ply, entityTable.ent)
+hook.Add("canBuyCustomEntity", "ConfiscationPurchaseBanned", function(ply, entityTable)
+    local allowed = IsPurchaseBanned(ply, entityTable.ent)
 
     if not allowed then
-        local expires = PurchaseHold[ply:SteamID64()][entityTable.ent]
+        local expires = PurchaseBanned[ply:SteamID64()][entityTable.ent]
         local remaining = math.ceil(expires - CurTime())
 
         DarkRP.notify(ply, 1, 4, "The Police Confiscated your printers and must wait ".. formatAliveTime(remaining) .. " before purchasing again.")
@@ -557,6 +560,110 @@ local function notifyConfiscation(owner, baseAmount, timeBonus, aliveTime, extra
 		owner:PrintMessage(HUD_PRINTCONSOLE, "[Confiscation Baton] " .. message .. "\n")
 	end
 end
+
+function confiscateBags(victim, actor)
+	if not IsValid(victim) or not IsValid(actor) then return end
+
+	local steamID = victim:SteamID64()
+	local activeBags = perfectVault.Core.ActiveBags[steamID]
+
+	if not activeBags then return end
+
+	local totalBags = 0
+	local totalBagValue = 0
+
+	-- Tally all active bags first.
+	for _, bagData in pairs(activeBags) do
+		local bagValue = tonumber(bagData.amount) or 0
+
+		if bagValue > 0 then
+			totalBags = totalBags + 1
+			totalBagValue = totalBagValue + bagValue
+		end
+	end
+
+	if totalBags <= 0 then
+		perfectVault.Core.ActiveBags[steamID] = nil
+		return
+	end
+
+	local vaults = ents.FindByClass("pvault_door")
+	local returnedBags = 0
+	local confiscatedBags = 0
+
+	-- Determine how many bags can be returned to vaults.
+	if #vaults > 0 then
+		for _, vault in ipairs(vaults) do
+			if not IsValid(vault) then continue end
+
+			local maxBags = tonumber(vault["data"]["general"]["bagCount"])
+			local currentBags = tonumber(vault:GetMoneybags()) or 0
+
+			if not maxBags then continue end
+
+			local availableSlots = math.max(maxBags - currentBags, 0)
+			local bagsToReturn = math.min(availableSlots, totalBags - returnedBags)
+
+			if bagsToReturn > 0 then
+				vault:SetMoneybags(currentBags + bagsToReturn)
+				returnedBags = returnedBags + bagsToReturn
+			end
+
+			if returnedBags >= totalBags then
+				break
+			end
+		end
+	end
+
+	-- Anything that could not fit into a vault is confiscated normally.
+	confiscatedBags = totalBags - returnedBags
+
+	local policeShare = totalBagValue * 2
+
+	actor:addMoney(policeShare)
+
+	-- Build context-sensitive notification text.
+	local returnText = nil
+	local confiscatedText = nil
+
+	if returnedBags == 1 then
+		returnText = "returning 1 bag to the vault"
+	elseif returnedBags > 1 then
+		returnText = string.format("returning %d bags to the vault", returnedBags)
+	end
+
+	if confiscatedBags == 1 then
+		confiscatedText = "confiscating 1 bag"
+	elseif confiscatedBags > 1 then
+		confiscatedText = string.format("confiscating %d bags", confiscatedBags)
+	end
+
+	local actionText
+
+	if returnText and confiscatedText then
+		actionText = returnText .. " and " .. confiscatedText
+	elseif returnText then
+		actionText = returnText
+	elseif confiscatedText then
+		actionText = confiscatedText
+	end
+
+	notifyConfiscation(actor, policeShare, 0, 0, nil, nil, actionText)
+
+	-- Clear the player's active carried bags after processing them.
+	perfectVault.Core.ActiveBags[steamID] = nil
+
+	-- Remove notification for bags on the client
+	net.Start("pvault_update_ply_bags")
+		net.WriteEntity(victim)
+		net.WriteInt(0, 32)
+	net.Broadcast()
+end
+
+-- This supports automatic confiscation of pvault moneybags when a user is arrested
+hook.Add("playerArrested", "ConfiscateBags", function(victim, _, actor)
+	confiscateBags(victim, actor)
+end)
 
 -- For some items like weed and meth, We use the original addons values to get the real value rather than use a flat amount.
 local function getValue(ent, owner)
@@ -1377,6 +1484,12 @@ local function getValue(ent, owner)
 
 		return true
 	end
+
+	if ent:IsPlayer() then
+		confiscateBags(ent, owner)
+
+		return true
+	end
 end
 
 function SWEP:PrimaryAttack()
@@ -1434,7 +1547,7 @@ function SWEP:PrimaryAttack()
 					if success then
 						-- Ban only printer type entities
 						if string.find(item, "printer") then
-							AddPurchaseHold(result, item)
+							AddPurchaseBan(result, item)
 						end
 					end
 
@@ -1449,7 +1562,7 @@ function SWEP:PrimaryAttack()
 					if success then
 						-- Ban only printer type entities
 						if string.find(item, "printer") then
-							AddPurchaseHold(owner, item)
+							AddPurchaseBan(owner, item)
 						end
 					end
 
