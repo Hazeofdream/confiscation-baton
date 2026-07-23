@@ -396,15 +396,21 @@ end
 -- If the function fails, the entity doesn't support DarkRP's Getowning_ent NW Flag
 
 local function checkOwner(ent, owner)
-	local success, result = pcall(function()
-		return owner == ent:Getowning_ent()
-	end)
+	if DEBUG then return false
 
-	if success and result then
-		if DEBUG then 
-			return false 
-		else 
-			return true
+	if ent.CPPIGetOwner then
+		local ok, owner = pcall(ent.CPPIGetOwner, ent)
+
+		if ok and IsValid(owner) then
+			return owner
+		end
+	end
+
+	if ent.Getowning_ent then
+		local ok, owner = pcall(ent.Getowning_ent, ent)
+
+		if ok and IsValid(owner) then
+			return owner
 		end
 	end
 
