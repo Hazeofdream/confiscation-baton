@@ -290,7 +290,6 @@ function loadContraband()
 	-- Not a server available yet, but will be soon :)
 	if scripted_ents.GetStored("exhib_printer") then
 		contraband["exhib_printer"] = 15000
-		contraband["exhib_printers"] = 15000
 
 		table.insert(loadedAddons, "Exhibition Printers")
 	end
