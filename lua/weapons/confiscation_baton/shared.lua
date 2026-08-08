@@ -288,7 +288,7 @@ function loadContraband()
 
 	-- Exhibition
 	-- Not a server available yet, but will be soon :)
-	if scripted_ents.GetStored("exhib_printer") or scripted_ents.GetStored("exhib_printers") then
+	if scripted_ents.GetStored("exhib_printer") then
 		contraband["exhib_printer"] = 15000
 		contraband["exhib_printers"] = 15000
 
