@@ -286,14 +286,6 @@ function loadContraband()
 		table.insert(loadedAddons, "Crap-Head's Bitminers 2")
 	end
 
-	-- Exhibition
-	-- Not a server available yet, but will be soon :)
-	if scripted_ents.GetStored("exhib_printer") then
-		contraband["exhib_printer"] = 15000
-
-		table.insert(loadedAddons, "Exhibition Printers")
-	end
-
 	-- Zero's Botnet
 	if scripted_ents.GetStored("zbf_controller") then
 		contraband["zbf_controller"] = 3000
@@ -828,37 +820,6 @@ local function getValue(ent, owner)
 		end
 
 		owner:addMoney(money + getContrabandValue(ent))
-	
-		return true
-	end
-
-	-- Exhibition's Printers
-	if string.find(ent:GetClass(), "exhib_printer") then 
-		local money = 0
-		if ent.GetMoney then
-			local ok, value = pcall(ent.GetMoney, ent)
-			if ok and isnumber(value) then
-				money = math.max(value, 0)
-			end
-		end
-
-		local slotCount = 1
-		if ent.GetSlots then
-			local ok, value = pcall(ent.GetSlots, ent)
-			if ok and isnumber(value) then
-				slotCount = math.max(1, value)
-			end
-		end
-
-		local printerValue = math.min(getContrabandValue(ent), 2000000) * slotCount
-		
-		if money == 0 then
-			notifyConfiscation(owner, getContrabandValue(ent), ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime)
-		else
-			notifyConfiscation(owner, printerValue, ent.ConfiscationTimeBonus, ent.ConfiscationAliveTime, money, "printed money")
-		end
-
-		owner:addMoney(money + printerValue)
 	
 		return true
 	end
